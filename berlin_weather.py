@@ -1,5 +1,3 @@
-welcome
-hahaha
 import pandas as pd
 from pandas import read_csv
 import matplotlib.pylab as plt
@@ -229,13 +227,13 @@ lake_weekend['month'] = lake_weekend['Measurement day'].apply(lambda x: x.month)
 
 # Filtering only lake weekends from one defined year.
 # First posibility is with lambda the second one with pythonic way for-loop.
-criterion_year = lake_weekend['year'].map(lambda x: x == 2018)
-lake_weekend_2018=lake_weekend[criterion_year]
+# criterion_year = lake_weekend['year'].map(lambda x: x == 2018)
+# lake_weekend_2018=lake_weekend[criterion_year]
 
-onelake=lake_weekend[[x==2018 for x in lake_weekend['year']] & (lake_weekend['go_to_lake'] == True)]
-onelake=lake_weekend[criterion_year & (lake_weekend['go_to_lake'] == True)]
+lake_weekend_in_year = lake_weekend[[x==2018 for x in lake_weekend['year']] & (lake_weekend['go_to_lake'] == True)]
+# onelake=lake_weekend[criterion_year & (lake_weekend['go_to_lake'] == True)]
 
-print()
+print(lake_weekend_in_year)
 
 # # Combining into a one excel sheet
 # print("### Getting your data")
