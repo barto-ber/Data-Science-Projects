@@ -206,21 +206,21 @@ data_copy = data_copy.rename(columns={
 
 plt.show()
 
-
+choosen_temp = 30
 data_copy['day_of_week'] = data_copy['Measurement day'].apply(lambda x: x.weekday())
 data_copy['weekend'] = data_copy['day_of_week'] >= 5
-data_copy['hot'] = data_copy['Max daily temp'] >= 30
+data_copy['hot'] = data_copy['Max daily temp'] >= choosen_temp
 data_copy['go_to_lake'] = (data_copy['weekend']) & (data_copy['hot'])
-
-data_copy['year'] = pd.DatetimeIndex(data_copy['Measurement day']).year
-data_copy['month'] = pd.DatetimeIndex(data_copy['Measurement day']).month
-data_copy['day'] = pd.DatetimeIndex(data_copy['Measurement day']).day
-
-
-lake_weekend = data_copy[data_copy['weekend'] == True].groupby('Measurement day')['go_to_lake'].any()
-lake_weekend = pd.DataFrame(lake_weekend).reset_index()
-lake_weekend['year'] = lake_weekend['Measurement day'].apply(lambda x: x.year)
-lake_weekend['month'] = lake_weekend['Measurement day'].apply(lambda x: x.month)
+print(data_copy)
+# data_copy['year'] = pd.DatetimeIndex(data_copy['Measurement day']).year
+# data_copy['month'] = pd.DatetimeIndex(data_copy['Measurement day']).month
+# data_copy['day'] = pd.DatetimeIndex(data_copy['Measurement day']).day
+#
+#
+# lake_weekend = data_copy[data_copy['weekend'] == True].groupby('Measurement day')['go_to_lake'].any()
+# lake_weekend = pd.DataFrame(lake_weekend).reset_index()
+# lake_weekend['year'] = lake_weekend['Measurement day'].apply(lambda x: x.year)
+# lake_weekend['month'] = lake_weekend['Measurement day'].apply(lambda x: x.month)
 
 # yearly = lake_weekend.groupby('year')['go_to_lake'].value_counts().rename('days').reset_index()
 # monthly = lake_weekend.groupby('month')['go_to_lake'].value_counts().rename('days').reset_index()
@@ -230,10 +230,12 @@ lake_weekend['month'] = lake_weekend['Measurement day'].apply(lambda x: x.month)
 # criterion_year = lake_weekend['year'].map(lambda x: x == 2018)
 # lake_weekend_2018=lake_weekend[criterion_year]
 
-lake_weekend_in_year = lake_weekend[[x==2018 for x in lake_weekend['year']] & (lake_weekend['go_to_lake'] == True)]
-# onelake=lake_weekend[criterion_year & (lake_weekend['go_to_lake'] == True)]
-
-print(lake_weekend_in_year)
+# choosen_year = 2018
+# lake_weekend_in_year = lake_weekend[[x==choosen_year for x in lake_weekend['year']] & (lake_weekend['go_to_lake'] == True)]
+# # lake_weekend_in_year = lake_weekend[criterion_year & (lake_weekend['go_to_lake'] == True)]
+# print(f"In your choosen year {choosen_year} were {num_days_hot} hot days with more than {choosen_temp} °C.")
+#
+# print(lake_weekend_in_year)
 
 # # Combining into a one excel sheet
 # print("### Getting your data")
