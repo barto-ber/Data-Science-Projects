@@ -7,6 +7,10 @@ import numpy as np
 import seaborn as sns; sns.set()
 import calmap
 from openpyxl import Workbook
+pd.options.display.width = 0
+pd.options.display.max_rows = None
+# pd.set_option('display.max_columns', 50)
+# pd.set_option('display.width', 1000)
 
 # Reading the weather data txt. Making a copy of df data
 data = read_csv('berlin_klima_1948_2018.txt', header=0, parse_dates=[1], sep=';')
@@ -206,35 +210,43 @@ data_copy = data_copy.rename(columns={
 
 plt.show()
 
-choosen_temp = 30
+chosen_temp = 25
 data_copy['day_of_week'] = data_copy['Measurement day'].apply(lambda x: x.weekday())
 data_copy['weekend'] = data_copy['day_of_week'] >= 5
-data_copy['hot'] = data_copy['Max daily temp'] >= choosen_temp
-data_copy['go_to_lake'] = (data_copy['weekend']) & (data_copy['hot'])
-print(data_copy)
+data_copy['hot'] = data_copy['Max daily temp'] >= chosen_temp
+data_copy['go_to_lake_day'] = (data_copy['day_of_week']) & (data_copy['hot'])
+data_copy['go_to_lake_weekend'] = (data_copy['weekend']) & (data_copy['hot'])
+# print(data_copy[150:200])
+
 # data_copy['year'] = pd.DatetimeIndex(data_copy['Measurement day']).year
 # data_copy['month'] = pd.DatetimeIndex(data_copy['Measurement day']).month
 # data_copy['day'] = pd.DatetimeIndex(data_copy['Measurement day']).day
-#
-#
-# lake_weekend = data_copy[data_copy['weekend'] == True].groupby('Measurement day')['go_to_lake'].any()
-# lake_weekend = pd.DataFrame(lake_weekend).reset_index()
-# lake_weekend['year'] = lake_weekend['Measurement day'].apply(lambda x: x.year)
+
+lake_any_day = data_copy[data_copy['day_of_week'] >= 0].groupby('Measurement day')['go_to_lake_day'].any()
+lake_any_day = pd.DataFrame(lake_any_day).reset_index()
+lake_weekend = data_copy[data_copy['weekend'] == True].groupby('Measurement day')['go_to_lake_weekend'].any()
+lake_weekend = pd.DataFrame(lake_weekend).reset_index()
+# print(lake_any_day[150:200])
+lake_any_day['year'] = lake_any_day['Measurement day'].apply(lambda x: x.year)
+lake_weekend['year'] = lake_weekend['Measurement day'].apply(lambda x: x.year)
+
 # lake_weekend['month'] = lake_weekend['Measurement day'].apply(lambda x: x.month)
 
-# yearly = lake_weekend.groupby('year')['go_to_lake'].value_counts().rename('days').reset_index()
+yearly_lake_weekend = lake_weekend.groupby('year')['go_to_lake_weekend'].value_counts().rename('days').reset_index()
+yearly_lake_any_day = lake_any_day.groupby('year')['go_to_lake_day'].value_counts().rename('days').reset_index()
 # monthly = lake_weekend.groupby('month')['go_to_lake'].value_counts().rename('days').reset_index()
+print(yearly_lake_weekend)
 
-# Filtering only lake weekends from one defined year.
-# First posibility is with lambda the second one with pythonic way for-loop.
+# Filtering only lake weekends or/and other days from one defined year.
+# First possibility is with lambda the second one with pythonic way for-loop.
 # criterion_year = lake_weekend['year'].map(lambda x: x == 2018)
 # lake_weekend_2018=lake_weekend[criterion_year]
 
-# choosen_year = 2018
-# lake_weekend_in_year = lake_weekend[[x==choosen_year for x in lake_weekend['year']] & (lake_weekend['go_to_lake'] == True)]
-# # lake_weekend_in_year = lake_weekend[criterion_year & (lake_weekend['go_to_lake'] == True)]
-# print(f"In your choosen year {choosen_year} were {num_days_hot} hot days with more than {choosen_temp} °C.")
-#
+chosen_year = 2014
+lake_weekend_in_year = lake_weekend[[x==chosen_year for x in lake_weekend['year']] & (lake_weekend['go_to_lake_weekend'] == True)]
+# lake_weekend_in_year = lake_weekend[criterion_year & (lake_weekend['go_to_lake'] == True)]
+# print(f"In your chosen year {chosen_year} were {num_days_hot} hot days with more than {chosen_temp} °C.")
+
 # print(lake_weekend_in_year)
 
 # # Combining into a one excel sheet
