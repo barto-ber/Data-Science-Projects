@@ -11,6 +11,7 @@ pd.options.display.width = 0
 pd.options.display.max_rows = None
 # pd.set_option('display.max_columns', 50)
 # pd.set_option('display.width', 1000)
+from pprint import pprint
 
 # Reading the weather data txt. Making a copy of df data
 data = read_csv('berlin_klima_1948_2018.txt', header=0, parse_dates=[1], sep=';')
@@ -208,7 +209,7 @@ data_copy = data_copy.rename(columns={
 # 					)
 # fig.colorbar(cax.get_children()[1], ax=cax, orientation='horizontal')
 
-plt.show()
+# plt.show()
 
 chosen_temp = 25
 data_copy['day_of_week'] = data_copy['Measurement day'].apply(lambda x: x.weekday())
@@ -241,7 +242,7 @@ yearly_lake_any_day = lake_any_day.groupby('year')['go_to_lake_day'].value_count
 # criterion_year = lake_weekend['year'].map(lambda x: x == 2018)
 # lake_weekend_2018=lake_weekend[criterion_year]
 
-chosen_year = 2017
+chosen_year = 1948
 days_hot = lake_any_day[[x==chosen_year for x in lake_any_day['year']] & (lake_any_day['go_to_lake_day'] == True)]
 weekends_hot = lake_weekend[[x==chosen_year for x in lake_weekend['year']] & (lake_weekend['go_to_lake_weekend'] == True)]
 num_days_hot = days_hot.groupby('year')['go_to_lake_day'].value_counts().rename('days').reset_index()
@@ -252,11 +253,19 @@ lake_weekend_in_year = lake_weekend[[x==chosen_year for x in lake_weekend['year'
 
 print(f"In your chosen year {chosen_year} were {num_days_hot['days'].sum()} hot days with more than {chosen_temp}°C.\n"
 	  f"It means on {num_days_hot['days'].sum()} days you could go to swim in a lake in Berlin.\n"
-	  f"These days were: "
-	  f"\n\t ......................\n"
-	  f"On the other side there were only {num_weekends_hot['days'].sum()} weekend days when you could go to the lakes in {chosen_year}.")
+	  f"These days were: \n"
+	  f"{days_hot['Measurement day'].to_string(index=False)}\n"
+	  f"On the other side there were only {num_weekends_hot['days'].sum()} weekend days when you could go to the lakes in {chosen_year}."
+	  f"These weekend days were: \n"
+	  f"{weekends_hot['Measurement day'].to_string(index=False)}")
 
-# print(num_days_hot)
+# # Yearly plot of hot days (lake days)
+# sns.set_style("whitegrid")
+# sns.barplot(x='year', y='days', hue='go_to_lake_day', data=yearly_lake_any_day)
+# plt.xlabel('Year')
+# plt.ylabel('Number of days')
+# # chart.set_xticklabels(chart.get_xticklabels(), rotation=45)
+# plt.show()
 
 # # Combining into a one excel sheet
 # print("### Getting your data")
