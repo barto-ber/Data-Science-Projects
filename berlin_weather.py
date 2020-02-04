@@ -13,20 +13,22 @@ pd.options.display.max_rows = None
 # pd.set_option('display.width', 1000)
 from pprint import pprint
 
-# Reading the weather data txt. Making a copy of df data
-data = read_csv('berlin_klima_1948_2018.txt', header=0, parse_dates=[1], sep=';')
-data_copy = data.copy()
+def read_file():
+	# Reading the weather data txt. Making a copy of df data
+	data = read_csv('berlin_klima_1948_2018.txt', header=0, parse_dates=[1], sep=';')
+	data_copy = data.copy()
 
-## Checking the datatypes of columns and other data.
+def check_data():
+	# Checking the datatypes of columns and other data.
+	print(data_copy.dtypes)
+	print(type(data_copy['MESS_DATUM']))
+	print(data_copy.head())
+	print(data_copy.columns)
 
-# print(data_copy.dtypes)
-# print(type(data_copy['MESS_DATUM']))
-# print(data_copy.head())
-# print(data_copy.columns)
-
-# Selecting data which I like to work (optional) with.
-selected_cols = ['MESS_DATUM', ' TXK', ' TNK', ' TMK']
-data_copy = data_copy[selected_cols]
+def select_data():
+	# Selecting data which I like to work (optional) with.
+	selected_cols = ['MESS_DATUM', ' TXK', ' TNK', ' TMK']
+	data_copy = data_copy[selected_cols]
 
 # Renaming some columns
 data_copy = data_copy.rename(columns={
