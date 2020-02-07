@@ -251,55 +251,58 @@ def calmap_year_plot():
 	fig.colorbar(cax.get_children()[1], ax=cax, orientation='horizontal')
 	plt.show()
 
+def data_go_to_lake():
+	# This is a function to prepare data for saying when is warm enough to go to lake.
+	data_copy = select_data()
+	chosen_temp = 25
+	chosen_year = 1948
+	data_copy['day_of_week'] = data_copy['Measurement day'].apply(lambda x: x.weekday())
+	data_copy['weekend'] = data_copy['day_of_week'] >= 5
+	data_copy['hot'] = data_copy['Max daily temp'] >= chosen_temp
+	data_copy['go_to_lake_day'] = (data_copy['day_of_week']) & (data_copy['hot'])
+	data_copy['go_to_lake_weekend'] = (data_copy['weekend']) & (data_copy['hot'])
+	# print(data_copy[150:200])
 
-chosen_temp = 25
-data_copy['day_of_week'] = data_copy['Measurement day'].apply(lambda x: x.weekday())
-data_copy['weekend'] = data_copy['day_of_week'] >= 5
-data_copy['hot'] = data_copy['Max daily temp'] >= chosen_temp
-data_copy['go_to_lake_day'] = (data_copy['day_of_week']) & (data_copy['hot'])
-data_copy['go_to_lake_weekend'] = (data_copy['weekend']) & (data_copy['hot'])
-# print(data_copy[150:200])
+	# data_copy['year'] = pd.DatetimeIndex(data_copy['Measurement day']).year
+	# data_copy['month'] = pd.DatetimeIndex(data_copy['Measurement day']).month
+	# data_copy['day'] = pd.DatetimeIndex(data_copy['Measurement day']).day
 
-# data_copy['year'] = pd.DatetimeIndex(data_copy['Measurement day']).year
-# data_copy['month'] = pd.DatetimeIndex(data_copy['Measurement day']).month
-# data_copy['day'] = pd.DatetimeIndex(data_copy['Measurement day']).day
+	lake_any_day = data_copy[data_copy['day_of_week'] >= 0].groupby('Measurement day')['go_to_lake_day'].any()
+	lake_any_day = pd.DataFrame(lake_any_day).reset_index()
+	lake_weekend = data_copy[data_copy['weekend'] == True].groupby('Measurement day')['go_to_lake_weekend'].any()
+	lake_weekend = pd.DataFrame(lake_weekend).reset_index()
+	# print(lake_any_day[150:200])
 
-lake_any_day = data_copy[data_copy['day_of_week'] >= 0].groupby('Measurement day')['go_to_lake_day'].any()
-lake_any_day = pd.DataFrame(lake_any_day).reset_index()
-lake_weekend = data_copy[data_copy['weekend'] == True].groupby('Measurement day')['go_to_lake_weekend'].any()
-lake_weekend = pd.DataFrame(lake_weekend).reset_index()
-# print(lake_any_day[150:200])
-lake_any_day['year'] = lake_any_day['Measurement day'].apply(lambda x: x.year)
-lake_weekend['year'] = lake_weekend['Measurement day'].apply(lambda x: x.year)
-# lake_weekend['month'] = lake_weekend['Measurement day'].apply(lambda x: x.month)
+	lake_any_day['year'] = lake_any_day['Measurement day'].apply(lambda x: x.year)
+	lake_weekend['year'] = lake_weekend['Measurement day'].apply(lambda x: x.year)
+	# lake_weekend['month'] = lake_weekend['Measurement day'].apply(lambda x: x.month)
 
-yearly_lake_weekend = lake_weekend.groupby('year')['go_to_lake_weekend'].value_counts().rename('days').reset_index()
-yearly_lake_any_day = lake_any_day.groupby('year')['go_to_lake_day'].value_counts().rename('days').reset_index()
-# monthly = lake_weekend.groupby('month')['go_to_lake'].value_counts().rename('days').reset_index()
-# print(yearly_lake_any_day)
+	yearly_lake_weekend = lake_weekend.groupby('year')['go_to_lake_weekend'].value_counts().rename('days').reset_index()
+	yearly_lake_any_day = lake_any_day.groupby('year')['go_to_lake_day'].value_counts().rename('days').reset_index()
+	# monthly = lake_weekend.groupby('month')['go_to_lake'].value_counts().rename('days').reset_index()
+	# print(yearly_lake_any_day)
 
-# Filtering only lake weekends or/and other days from one defined year.
-# First possibility is with lambda the second one with pythonic way for-loop.
-# criterion_year = lake_weekend['year'].map(lambda x: x == 2018)
-# lake_weekend_2018=lake_weekend[criterion_year]
+	# Filtering only lake weekends or/and other days from one defined year.
+	# First possibility is with lambda the second one with pythonic way for-loop.
+	# criterion_year = lake_weekend['year'].map(lambda x: x == 2018)
+	# lake_weekend_2018=lake_weekend[criterion_year]
 
-chosen_year = 1948
-days_hot = lake_any_day[[x==chosen_year for x in lake_any_day['year']] & (lake_any_day['go_to_lake_day'] == True)]
-weekends_hot = lake_weekend[[x==chosen_year for x in lake_weekend['year']] & (lake_weekend['go_to_lake_weekend'] == True)]
-num_days_hot = days_hot.groupby('year')['go_to_lake_day'].value_counts().rename('days').reset_index()
-num_weekends_hot = weekends_hot.groupby('year')['go_to_lake_weekend'].value_counts().rename('days').reset_index()
+	days_hot = lake_any_day[[x==chosen_year for x in lake_any_day['year']] & (lake_any_day['go_to_lake_day'] == True)]
+	weekends_hot = lake_weekend[[x==chosen_year for x in lake_weekend['year']] & (lake_weekend['go_to_lake_weekend'] == True)]
+	num_days_hot = days_hot.groupby('year')['go_to_lake_day'].value_counts().rename('days').reset_index()
+	num_weekends_hot = weekends_hot.groupby('year')['go_to_lake_weekend'].value_counts().rename('days').reset_index()
 
-lake_weekend_in_year = lake_weekend[[x==chosen_year for x in lake_weekend['year']] & (lake_weekend['go_to_lake_weekend'] == True)]
-# lake_weekend_in_year = lake_weekend[criterion_year & (lake_weekend['go_to_lake'] == True)]
+	lake_weekend_in_year = lake_weekend[[x==chosen_year for x in lake_weekend['year']] & (lake_weekend['go_to_lake_weekend'] == True)]
+	# lake_weekend_in_year = lake_weekend[criterion_year & (lake_weekend['go_to_lake'] == True)]
 
-print(f"In your chosen year {chosen_year} were {num_days_hot['days'].sum()} hot days with more than {chosen_temp}°C.\n"
-	  f"It means on {num_days_hot['days'].sum()} days you could go to swim in a lake in Berlin.\n"
-	  f"These days were: \n"
-	  f"{days_hot['Measurement day'].to_string(index=False)}\n"
-	  f"On the other side there were only {num_weekends_hot['days'].sum()} weekend days when you could go to the lakes in {chosen_year}."
-	  f"These weekend days were: \n"
-	  f"{weekends_hot['Measurement day'].to_string(index=False)}")
-
+	print(f"In your chosen year {chosen_year} were {num_days_hot['days'].sum()} hot days with more than {chosen_temp}°C.\n"
+		f"It means on {num_days_hot['days'].sum()} days you could go to swim in a lake in Berlin.\n"
+		f"These days were: \n"
+	  	f"{days_hot['Measurement day'].to_string(index=False)}\n"
+	  	f"On the other side there were only {num_weekends_hot['days'].sum()} weekend days when you could go to the lakes in {chosen_year}."
+	  	f"These weekend days were: \n"
+	  	f"{weekends_hot['Measurement day'].to_string(index=False)}")
+data_go_to_lake()
 # # Yearly plot of hot days (lake days)
 # sns.set_style("whitegrid")
 # sns.barplot(x='year', y='days', hue='go_to_lake_day', data=yearly_lake_any_day)
