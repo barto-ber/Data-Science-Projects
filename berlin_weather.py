@@ -29,9 +29,10 @@ def check_data():
 	print(data_copy.dtypes)
 	print(type(data_copy['MESS_DATUM']))
 	print(data_copy.head())
+	print(data_copy.tail())
 	print(data_copy.columns)
 	print("--- Checking data: DONE ---")
-
+check_data()
 def select_data():
 	# Selecting data which I like to work with.
 	data_copy = read_file()
@@ -99,7 +100,7 @@ def select_data_period():
 	# Selecting data based on dates; Setting Measurement day as the index.
 	data_copy = select_data()
 	data_copy_index = data_copy.set_index('Measurement day')
-	first_jan = data_copy_index['2016-01-01': '2016-01-03']
+	first_jan = data_copy_index['2019-03-02': '2019-03-02']
 	print("\n--- Selected data based on one period ---")
 	print(first_jan)
 	return data_copy_index
@@ -302,7 +303,7 @@ def data_go_to_lake():
 	  	f"On the other side there were only {num_weekends_hot['days'].sum()} weekend days when you could go to the lakes in {chosen_year}."
 	  	f"These weekend days were: \n"
 	  	f"{weekends_hot['Measurement day'].to_string(index=False)}")
-data_go_to_lake()
+
 # # Yearly plot of hot days (lake days)
 # sns.set_style("whitegrid")
 # sns.barplot(x='year', y='days', hue='go_to_lake_day', data=yearly_lake_any_day)
