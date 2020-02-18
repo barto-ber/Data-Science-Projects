@@ -17,7 +17,7 @@ from pprint import pprint
 
 def read_file():
 	# Reading the weather data txt. Making a copy of df data
-	data = read_csv('berlin_klima_1948_2018.txt', header=0, parse_dates=[1], sep=';')
+	data = read_csv('berlin_klima_1948_2019.txt', header=0, parse_dates=[1], sep=';')
 	data_copy = data.copy()
 	print("--- Data copy: DONE ---")
 	print("+++ Check data with def check_data() if needed +++")
@@ -32,7 +32,7 @@ def check_data():
 	print(data_copy.tail())
 	print(data_copy.columns)
 	print("--- Checking data: DONE ---")
-check_data()
+
 def select_data():
 	# Selecting data which I like to work with.
 	data_copy = read_file()
@@ -66,7 +66,7 @@ def some_statistics():
 				palette="YlOrRd",
 				data=temp_more30
 				);
-	plt.title("Berlin temperatures over 30°C between 1948 - 2018", size=16)
+	plt.title("Berlin temperatures over 30°C between 1948 - 2019", size=16)
 	plt.ylim(30, 40)
 	# Plot days with temps less 10°C.
 	temp_lessminus10 = data_copy.loc[data_copy['Min daily temp'] < -10]
@@ -76,7 +76,7 @@ def some_statistics():
 				palette="Blues_r",
 				data=temp_lessminus10
 				);
-	plt.title("Berlin temperatures below -10°C between 1948 - 2018", size=16)
+	plt.title("Berlin temperatures below -10°C between 1948 - 2019", size=16)
 	plt.ylim(-25, -10)
 	plt.show()
 
@@ -256,7 +256,7 @@ def data_go_to_lake():
 	# This is a function to prepare data for saying when is warm enough to go to lake.
 	data_copy = select_data()
 	chosen_temp = 25
-	chosen_year = 1948
+	chosen_year = 2018
 	data_copy['day_of_week'] = data_copy['Measurement day'].apply(lambda x: x.weekday())
 	data_copy['weekend'] = data_copy['day_of_week'] >= 5
 	data_copy['hot'] = data_copy['Max daily temp'] >= chosen_temp
@@ -303,7 +303,7 @@ def data_go_to_lake():
 	  	f"On the other side there were only {num_weekends_hot['days'].sum()} weekend days when you could go to the lakes in {chosen_year}."
 	  	f"These weekend days were: \n"
 	  	f"{weekends_hot['Measurement day'].to_string(index=False)}")
-
+data_go_to_lake()
 # # Yearly plot of hot days (lake days)
 # sns.set_style("whitegrid")
 # sns.barplot(x='year', y='days', hue='go_to_lake_day', data=yearly_lake_any_day)
