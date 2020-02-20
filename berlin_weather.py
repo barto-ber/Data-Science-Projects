@@ -13,7 +13,6 @@ pd.options.display.width = 0
 pd.options.display.max_rows = None
 # pd.set_option('display.max_columns', 50)
 # pd.set_option('display.width', 1000)
-from pprint import pprint
 
 def read_file():
 	# Reading the weather data txt. Making a copy of df data
@@ -23,9 +22,67 @@ def read_file():
 	print("+++ Check data with def check_data() if needed +++")
 	return data_copy
 
+def read_file_max_1876():
+	data2 = read_csv('berlin_max_temp_daily_1876_1962.csv',
+					 usecols=["Zeitstempel", "Wert"],
+					 header=0, parse_dates=["Zeitstempel"], sep=',').rename(
+		columns={
+			"Zeitstempel": "Measurement day",
+			"Wert": "Max daily temp"
+		}
+	)
+	data_copy2 = data2.copy()
+	# print(data_copy2.info())
+	# print(data_copy2.head())
+	data_copy2 = data_copy2.set_index('Measurement day')
+	until_1948_max = data_copy2['1876-01-01': '1947-12-31']
+	until_1948_max.reset_index(inplace=True)
+	# print(until_1948.head())
+	# print(until_1948.tail())
+	return until_1948_max
+
+def read_file_min_1876():
+	data3 = read_csv('berlin_min_temp_daily_1876_1962.csv',
+					 usecols=["Zeitstempel", "Wert"],
+					 header=0, parse_dates=["Zeitstempel"], sep=',').rename(
+		columns={
+			"Zeitstempel": "Measurement day",
+			"Wert": "Min daily temp"
+		}
+	)
+	data_copy3 = data3.copy()
+	# print(data_copy3.info())
+	# print(data_copy3.head())
+	data_copy3 = data_copy3.set_index('Measurement day')
+	until_1948_min = data_copy3['1876-01-01': '1947-12-31']
+	until_1948_min.reset_index(inplace=True)
+	# print(until_1948_min.head())
+	# print(until_1948_min.tail())
+	return until_1948_min
+
+def read_file_mean_1876():
+	data4 = read_csv('berlin_mean_temp_daily_1876_1962.csv',
+					 usecols=["Zeitstempel", "Wert"],
+					 header=0, parse_dates=["Zeitstempel"], sep=',').rename(
+		columns={
+			"Zeitstempel": "Measurement day",
+			"Wert": "Medium daily temp"
+		}
+	)
+	data_copy4 = data4.copy()
+	# print(data_copy4.info())
+	# print(data_copy4.head())
+	data_copy4 = data_copy4.set_index('Measurement day')
+	until_1948_mean = data_copy4['1876-01-01': '1947-12-31']
+	until_1948_mean.reset_index(inplace=True)
+	# print(until_1948_mean.head())
+	# print(until_1948_mean.tail())
+	return until_1948_mean
+
 def check_data():
 	# Checking the data types etc.
 	data_copy = read_file()
+	print(data_copy.shape)
 	print(data_copy.dtypes)
 	print(type(data_copy['MESS_DATUM']))
 	print(data_copy.head())
@@ -46,37 +103,55 @@ def select_data():
 								' TNK': 'Min daily temp',
 								' TMK': 'Medium daily temp'})
 	print("--- Renaming columns: DONE ---")
+	data_copy = data_copy.set_index('Measurement day')
+	data_copy.reset_index(inplace=True)
 	# print(data_copy.columns)
 	# print(data_copy.head())
 	# print(type(data_copy))
 	return data_copy
 
-def some_statistics():
+def combining_datasets():
 	data_copy = select_data()
+	until_1948_max = read_file_max_1876()
+	until_1948_min = read_file_min_1876()
+	until_1948_mean = read_file_mean_1876()
+	until_1948_max_min = pd.merge(until_1948_max, until_1948_min, on="Measurement day")
+	until_1948 = pd.merge(until_1948_max_min, until_1948_mean, on="Measurement day")
+	# print(until_1948.head())
+	frames = [until_1948, data_copy]
+	data_copy_combined = pd.concat(frames, sort=False)
+	# print(data_copy_combined.shape)
+	# print(data_copy_combined.head())
+	# print(data_copy_combined.tail())
+	return data_copy_combined
+
+def some_statistics():
+	data_copy_combined = combining_datasets()
 	print("\n--- Some statistics from the .describe() method ---")
-	print(data_copy.describe())
-	temp_max_sort = data_copy.sort_values(by='Max daily temp', ascending=False)
+	print(data_copy_combined.describe())
+	temp_max_sort = data_copy_combined.sort_values(by='Max daily temp', ascending=False)
 	print("\n--- Highest temperatures sorted from the highest ---")
 	print(temp_max_sort[:50])
+
 	# Plot days with temps over 30°C.
-	temp_more30 = data_copy.loc[data_copy['Max daily temp'] > 30]
+	temp_more30 = data_copy_combined.loc[data_copy_combined['Max daily temp'] > 30]
 	sns.relplot(x="Measurement day",
 				y="Max daily temp",
 				hue="Max daily temp",
 				palette="YlOrRd",
 				data=temp_more30
 				);
-	plt.title("Berlin temperatures over 30°C between 1948 - 2019", size=16)
+	plt.title("Berlin temperatures over 30°C between 1876 - 2019", size=16)
 	plt.ylim(30, 40)
 	# Plot days with temps less 10°C.
-	temp_lessminus10 = data_copy.loc[data_copy['Min daily temp'] < -10]
+	temp_lessminus10 = data_copy_combined.loc[data_copy_combined['Min daily temp'] < -10]
 	sns.relplot(x="Measurement day",
 				y="Min daily temp",
 				hue="Min daily temp",
 				palette="Blues_r",
 				data=temp_lessminus10
 				);
-	plt.title("Berlin temperatures below -10°C between 1948 - 2019", size=16)
+	plt.title("Berlin temperatures below -10°C between 1876 - 2019", size=16)
 	plt.ylim(-25, -10)
 	plt.show()
 
@@ -90,16 +165,16 @@ def convert_to_datetime():
 
 def group_data_decades():
 	# Grouping data in decades.
-	data_copy = select_data()
-	data_copy = data_copy.groupby(pd.cut(data_copy['Measurement day'], pd.date_range('1948', '2019', freq='10YS'), right=False)).mean()
-	data_copy.reset_index(inplace=True)
+	data_copy_combined = combining_datasets()
+	data_copy_combined = data_copy_combined.groupby(pd.cut(data_copy_combined['Measurement day'], pd.date_range('1876', '2019', freq='10YS'), right=False)).mean()
+	data_copy_combined.reset_index(inplace=True)
 	print("\n--- Grouping data in decades ---")
-	print(data_copy)
+	print(data_copy_combined)
 
 def select_data_period():
 	# Selecting data based on dates; Setting Measurement day as the index.
-	data_copy = select_data()
-	data_copy_index = data_copy.set_index('Measurement day')
+	data_copy_combined = combining_datasets()
+	data_copy_index = data_copy_combined.set_index('Measurement day')
 	first_jan = data_copy_index['2019-03-02': '2019-03-02']
 	print("\n--- Selected data based on one period ---")
 	print(first_jan)
@@ -114,7 +189,6 @@ def select_data_many_periods():
 	summer4 = data_copy_index['2000-06-01': '2000-08-31']
 	summer5 = data_copy_index['2010-06-01': '2010-08-31']
 	summer6 = data_copy_index['2018-06-01': '2018-08-31']
-
 
 def monthly_data():
 	data_copy_index = select_data_period()
@@ -190,15 +264,15 @@ def monthly_data():
 
 def all_years_one_plot():
 	# Ploting with seaborn
-	data_copy = select_data()
-	sns.lineplot(x=data_copy['Measurement day'].dt.dayofyear,
-						y=data_copy['Max daily temp'],
-						hue=data_copy['Measurement day'].dt.year,
+	data_copy_combined = combining_datasets()
+	sns.lineplot(x=data_copy_combined['Measurement day'].dt.dayofyear,
+						y=data_copy_combined['Max daily temp'],
+						hue=data_copy_combined['Measurement day'].dt.year,
 						legend='full',
 						palette="seismic",
 						ci=None,
 					);
-	plt.title("Berlin maximal daily temperatures 1948 - 2018", size=16)
+	plt.title("Berlin maximal daily temperatures 1876 - 2019", size=16)
 	plt.legend(ncol=5, loc='lower center', fontsize=10)
 	plt.xlim(1, 366)
 	plt.ylim(-20, 40)
@@ -254,23 +328,23 @@ def calmap_year_plot():
 
 def data_go_to_lake():
 	# This is a function to prepare data for saying when is warm enough to go to lake.
-	data_copy = select_data()
+	data_copy_combined = combining_datasets()
 	chosen_temp = 25
-	chosen_year = 2018
-	data_copy['day_of_week'] = data_copy['Measurement day'].apply(lambda x: x.weekday())
-	data_copy['weekend'] = data_copy['day_of_week'] >= 5
-	data_copy['hot'] = data_copy['Max daily temp'] >= chosen_temp
-	data_copy['go_to_lake_day'] = (data_copy['day_of_week']) & (data_copy['hot'])
-	data_copy['go_to_lake_weekend'] = (data_copy['weekend']) & (data_copy['hot'])
+	chosen_year = 1901
+	data_copy_combined['day_of_week'] = data_copy_combined['Measurement day'].apply(lambda x: x.weekday())
+	data_copy_combined['weekend'] = data_copy_combined['day_of_week'] >= 5
+	data_copy_combined['hot'] = data_copy_combined['Max daily temp'] >= chosen_temp
+	data_copy_combined['go_to_lake_day'] = (data_copy_combined['day_of_week']) & (data_copy_combined['hot'])
+	data_copy_combined['go_to_lake_weekend'] = (data_copy_combined['weekend']) & (data_copy_combined['hot'])
 	# print(data_copy[150:200])
 
 	# data_copy['year'] = pd.DatetimeIndex(data_copy['Measurement day']).year
 	# data_copy['month'] = pd.DatetimeIndex(data_copy['Measurement day']).month
 	# data_copy['day'] = pd.DatetimeIndex(data_copy['Measurement day']).day
 
-	lake_any_day = data_copy[data_copy['day_of_week'] >= 0].groupby('Measurement day')['go_to_lake_day'].any()
+	lake_any_day = data_copy_combined[data_copy_combined['day_of_week'] >= 0].groupby('Measurement day')['go_to_lake_day'].any()
 	lake_any_day = pd.DataFrame(lake_any_day).reset_index()
-	lake_weekend = data_copy[data_copy['weekend'] == True].groupby('Measurement day')['go_to_lake_weekend'].any()
+	lake_weekend = data_copy_combined[data_copy_combined['weekend'] == True].groupby('Measurement day')['go_to_lake_weekend'].any()
 	lake_weekend = pd.DataFrame(lake_weekend).reset_index()
 	# print(lake_any_day[150:200])
 
@@ -303,7 +377,7 @@ def data_go_to_lake():
 	  	f"On the other side there were only {num_weekends_hot['days'].sum()} weekend days when you could go to the lakes in {chosen_year}."
 	  	f"These weekend days were: \n"
 	  	f"{weekends_hot['Measurement day'].to_string(index=False)}")
-data_go_to_lake()
+
 # # Yearly plot of hot days (lake days)
 # sns.set_style("whitegrid")
 # sns.barplot(x='year', y='days', hue='go_to_lake_day', data=yearly_lake_any_day)
