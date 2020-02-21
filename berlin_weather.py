@@ -120,7 +120,7 @@ def combining_datasets():
 	# print(until_1948.head())
 	frames = [until_1948, data_copy]
 	data_copy_combined = pd.concat(frames, sort=False)
-	# print(data_copy_combined.shape)
+	print("The shape of combined data is:", (data_copy_combined.shape))
 	# print(data_copy_combined.head())
 	# print(data_copy_combined.tail())
 	return data_copy_combined
@@ -128,7 +128,7 @@ def combining_datasets():
 def some_statistics():
 	data_copy_combined = combining_datasets()
 	print("\n--- Some statistics from the .describe() method ---")
-	print(data_copy_combined.describe())
+	print(data_copy_combined['Max daily temp'].describe())
 	temp_max_sort = data_copy_combined.sort_values(by='Max daily temp', ascending=False)
 	print("\n--- Highest temperatures sorted from the highest ---")
 	print(temp_max_sort[:50])
