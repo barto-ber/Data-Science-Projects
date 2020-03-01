@@ -125,6 +125,9 @@ def combining_datasets():
 	# print(data_copy_combined.tail())
 	return data_copy_combined
 
+def groupby_exp():
+	g_data = combining_datasets()
+
 def some_statistics():
 	data_copy_combined = combining_datasets()
 	print("\n--- Some statistics from the .describe() method ---")
