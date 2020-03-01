@@ -7,6 +7,7 @@ from matplotlib import dates
 from datetime import datetime
 import numpy as np
 import seaborn as sns; sns.set()
+from mpl_toolkits.mplot3d import Axes3D
 import calmap
 from openpyxl import Workbook
 pd.options.display.width = 0
@@ -127,6 +128,9 @@ def combining_datasets():
 
 def groupby_exp():
 	g_data = combining_datasets()
+	for temp, group in g_data.groupby('Max daily temp'):
+		print(temp)
+		print(group)
 
 def some_statistics():
 	data_copy_combined = combining_datasets()
@@ -158,6 +162,32 @@ def some_statistics():
 	plt.ylim(-25, -10)
 	plt.show()
 
+def days_over_temp():
+	data_copy_combined = combining_datasets()
+	# Days with temperatures over a value.
+	data_copy_combined['year'] = pd.DatetimeIndex(data_copy_combined['Measurement day']).year
+	temp = 25
+	over_temp = data_copy_combined[(data_copy_combined['Max daily temp'] > temp)].groupby(['year'])['Measurement day'].count().reset_index()
+	print(f"\nDays per year with temperatures over {temp}:\n", over_temp)
+	return over_temp
+
+def graph_days_over_temp():
+	# Lets show it on a graph
+	over_temp = days_over_temp()
+	sns.catplot(
+		x='year',
+		y='Measurement day',
+		data=over_temp,
+		kind='bar',
+		color='navy'
+	)
+	plt.title("Berlin: Number of days in a year with temperatures over 25°C.", size=14)
+	plt.xlabel("Year", size=11)
+	plt.ylabel("Number of days", size=11)
+	plt.xticks(rotation=90, size=8)
+	plt.yticks(size=8, ticks=(np.arange(0, 89, 2)))
+	plt.show()
+graph_days_over_temp()
 def convert_to_datetime():
 	# Converting the date to datetime if not already is.
 	data_copy = select_data()
@@ -165,6 +195,7 @@ def convert_to_datetime():
 	print(type(data_copy['Measurement day']))
 	print(data_copy.head())
 	print("--- Converting to datetime: DONE ---")
+	return data_copy
 
 def group_data_decades():
 	# Grouping data in decades.
@@ -276,14 +307,28 @@ def all_years_one_plot():
 						ci=None,
 					);
 	plt.title("Berlin maximal daily temperatures 1876 - 2019", size=16)
-	plt.legend(ncol=5, loc='lower center', fontsize=10)
+	plt.legend(ncol=5, loc='lower center', fontsize=9)
 	plt.xlim(1, 366)
 	plt.ylim(-20, 40)
 	plt.show()
 
+def all_years_3d():
+	data_3d = combining_datasets()
+	fig = plt.figure()
+	ax = fig.gca(projection='3d')
+	surf = ax.plot_trisurf(data_3d['Measurement day'].dt.year,
+					data_3d['Measurement day'].dt.dayofyear,
+					data_3d['Max daily temp'],
+					cmap=plt.cm.jet, linewidth=0.2)
+	# to Add a color bar which maps values to colors.
+	fig.colorbar(surf, shrink=0.5, aspect=5)
+	ax.view_init(30, 45)
+	plt.title("Berlin maximal daily temperatures 1876 - 2019, 3d", size=13)
+	plt.show()
+
 def calmap_data():
 	# Preparation of data for calmap plot.
-	data_copy_calmap = select_data()
+	data_copy_calmap = combining_datasets()
 	data_copy_calmap['year'] = pd.DatetimeIndex(data_copy_calmap['Measurement day']).year
 	data_copy_calmap['month'] = pd.DatetimeIndex(data_copy_calmap['Measurement day']).month
 	data_copy_calmap['day'] = pd.DatetimeIndex(data_copy_calmap['Measurement day']).day
@@ -333,7 +378,7 @@ def data_go_to_lake():
 	# This is a function to prepare data for saying when is warm enough to go to lake.
 	data_copy_combined = combining_datasets()
 	chosen_temp = 25
-	chosen_year = 1901
+	chosen_year = 2019
 	data_copy_combined['day_of_week'] = data_copy_combined['Measurement day'].apply(lambda x: x.weekday())
 	data_copy_combined['weekend'] = data_copy_combined['day_of_week'] >= 5
 	data_copy_combined['hot'] = data_copy_combined['Max daily temp'] >= chosen_temp
