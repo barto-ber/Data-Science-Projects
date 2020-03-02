@@ -121,10 +121,15 @@ def combining_datasets():
 	# print(until_1948.head())
 	frames = [until_1948, data_copy]
 	data_copy_combined = pd.concat(frames, sort=False)
-	print("The shape of combined data is:", (data_copy_combined.shape))
+	print("The shape of combined data is:\n", (data_copy_combined.shape))
 	# print(data_copy_combined.head())
 	# print(data_copy_combined.tail())
 	return data_copy_combined
+
+def create_combined_csv():
+	data_for_csv = combining_datasets()
+	data_for_csv.to_csv("ber_weather_combined_1876_2019.csv", index=False)
+	print("--- Combined data copied to CSV ---")
 
 def groupby_exp():
 	g_data = combining_datasets()
@@ -201,7 +206,6 @@ def days_over_temp():
 		plt.yticks(size=8, ticks=(np.arange(0, 89, 2)))
 		plt.tick_params(labelright=True, size=8) # here improve!!!!
 		plt.show()
-days_over_temp()
 
 def convert_to_datetime():
 	# Converting the date to datetime if not already is.
