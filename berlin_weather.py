@@ -169,25 +169,40 @@ def days_over_temp():
 	temp = 25
 	over_temp = data_copy_combined[(data_copy_combined['Max daily temp'] > temp)].groupby(['year'])['Measurement day'].count().reset_index()
 	print(f"\nDays per year with temperatures over {temp}:\n", over_temp)
-	return over_temp
 
-def graph_days_over_temp():
-	# Lets show it on a graph
-	over_temp = days_over_temp()
-	sns.catplot(
-		x='year',
-		y='Measurement day',
-		data=over_temp,
-		kind='bar',
-		color='navy'
-	)
-	plt.title("Berlin: Number of days in a year with temperatures over 25°C.", size=14)
-	plt.xlabel("Year", size=11)
-	plt.ylabel("Number of days", size=11)
-	plt.xticks(rotation=90, size=8)
-	plt.yticks(size=8, ticks=(np.arange(0, 89, 2)))
-	plt.show()
-graph_days_over_temp()
+	def graph_days_over_temp():
+		# Lets show it on a graph
+		sns.catplot(
+			x='year',
+			y='Measurement day',
+			data=over_temp,
+			kind='bar',
+			color='navy'
+		)
+		plt.title("Berlin: Number of days in a year with temperatures over 25°C.", size=14)
+		plt.xlabel("Year", size=11)
+		plt.ylabel("Number of days", size=11)
+		plt.xticks(rotation=90, size=8)
+		plt.yticks(size=8, ticks=(np.arange(0, 89, 2)))
+		plt.show()
+
+
+	def graph_lin_regr_days_over_temp():
+		sns.regplot(
+			x='year',
+			y='Measurement day',
+			data=over_temp,
+			color='red'
+		)
+		plt.title("Berlin: Number of days in a year with temperatures over 25°C with lineal regression.", size=14)
+		plt.xlabel("Year", size=11)
+		plt.ylabel("Number of days", size=11)
+		plt.xticks(rotation=90, size=8, ticks=(np.arange(1876, 2021, 2)))
+		plt.yticks(size=8, ticks=(np.arange(0, 89, 2)))
+		plt.tick_params(labelright=True, size=8) # here improve!!!!
+		plt.show()
+days_over_temp()
+
 def convert_to_datetime():
 	# Converting the date to datetime if not already is.
 	data_copy = select_data()
