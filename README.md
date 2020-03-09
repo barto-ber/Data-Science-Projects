@@ -1,2 +1,2 @@
 # berlin_weather
-Some code to analyse the weather in Berlin.
+Some data analysis for the weather in Berlin, GER between 1876 and 2019.
