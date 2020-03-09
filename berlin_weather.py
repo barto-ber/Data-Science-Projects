@@ -131,14 +131,25 @@ def create_combined_csv():
 	data_for_csv.to_csv("ber_weather_combined_1876_2019.csv", index=False)
 	print("--- Combined data copied to CSV ---")
 
+def read_csv_combined():
+	data_combined = read_csv('ber_weather_combined_1876_2019.csv', header=0, parse_dates=[0])
+	print(data_combined.head())
+	return data_combined
+
 def groupby_exp():
-	g_data = combining_datasets()
+	g_data = read_csv_combined()
 	for temp, group in g_data.groupby('Max daily temp'):
 		print(temp)
 		print(group)
 
+def matrix_plt():
+	m_data = read_csv_combined()
+	pd.plotting.scatter_matrix(m_data[['Max daily temp', 'Min daily temp', 'Medium daily temp']])
+	plt.show()
+
+
 def some_statistics():
-	data_copy_combined = combining_datasets()
+	data_copy_combined = read_csv_combined()
 	print("\n--- Some statistics from the .describe() method ---")
 	print(data_copy_combined['Max daily temp'].describe())
 	temp_max_sort = data_copy_combined.sort_values(by='Max daily temp', ascending=False)
@@ -206,6 +217,7 @@ def days_over_temp():
 		plt.yticks(size=8, ticks=(np.arange(0, 89, 2)))
 		plt.tick_params(labelright=True, size=8) # here improve!!!!
 		plt.show()
+
 
 def convert_to_datetime():
 	# Converting the date to datetime if not already is.
