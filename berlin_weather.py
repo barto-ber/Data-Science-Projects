@@ -133,7 +133,8 @@ def create_combined_csv():
 
 def read_csv_combined():
 	data_combined = read_csv('ber_weather_combined_1876_2019.csv', header=0, parse_dates=[0])
-	print(data_combined.head())
+	print("--- Combined data read ---\n")
+	# print(data_combined.head())
 	return data_combined
 
 def groupby_exp():
@@ -146,6 +147,36 @@ def matrix_plt():
 	m_data = read_csv_combined()
 	pd.plotting.scatter_matrix(m_data[['Max daily temp', 'Min daily temp', 'Medium daily temp']])
 	plt.show()
+
+def today_before():
+	tdata = read_csv_combined()
+	tdata['year'] = pd.DatetimeIndex(tdata['Measurement day']).year
+	tdata['month'] = pd.DatetimeIndex(tdata['Measurement day']).month
+	tdata['day'] = pd.DatetimeIndex(tdata['Measurement day']).day
+	# print("Today before data:\n", tdata.head())
+	print(tdata.dtypes)
+	x_day = 11
+	x_month = 3
+	check_today_before = tdata[(tdata['day'] == x_day) &
+							   (tdata['month'] == x_month) #&
+							   # (tdata['Max daily temp'] >= 13)
+	]
+	print(f"\nToday temperature {x_day}.{x_month}.2020 in years before was:\n", check_today_before)
+	# Lets show it on a graph
+	sns.catplot(
+		x='year',
+		y='Max daily temp',
+		data=check_today_before,
+		kind='bar',
+		color='navy'
+	)
+	plt.title(f"Berlin: today temperature {x_day}.{x_month}.2020 in the years before", size=14)
+	plt.xlabel("Year", size=11)
+	plt.ylabel("Max daily temp C°", size=11)
+	plt.xticks(rotation=90, size=8)
+	plt.yticks(size=8, ticks=(np.arange(-5, 18, 1)))
+	plt.show()
+today_before()
 
 
 def some_statistics():
