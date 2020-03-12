@@ -155,7 +155,7 @@ def today_before():
 	tdata['day'] = pd.DatetimeIndex(tdata['Measurement day']).day
 	# print("Today before data:\n", tdata.head())
 	print(tdata.dtypes)
-	x_day = 11
+	x_day = 12
 	x_month = 3
 	check_today_before = tdata[(tdata['day'] == x_day) &
 							   (tdata['month'] == x_month) #&
@@ -176,7 +176,7 @@ def today_before():
 	plt.xticks(rotation=90, size=8)
 	plt.yticks(size=8, ticks=(np.arange(-5, 18, 1)))
 	plt.show()
-today_before()
+
 
 
 def some_statistics():
@@ -208,6 +208,7 @@ def some_statistics():
 	plt.title("Berlin temperatures below -10°C between 1876 - 2019", size=16)
 	plt.ylim(-25, -10)
 	plt.show()
+
 
 def days_over_temp():
 	data_copy_combined = combining_datasets()
