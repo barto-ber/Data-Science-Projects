@@ -154,21 +154,24 @@ def today_before():
 	tdata['month'] = pd.DatetimeIndex(tdata['Measurement day']).month
 	tdata['day'] = pd.DatetimeIndex(tdata['Measurement day']).day
 	# print("Today before data:\n", tdata.head())
-	print(tdata.dtypes)
+	# print(tdata.dtypes)
 	x_day = 15
 	x_month = 3
-	x_year = 2000
+	x_year = 1876
 	check_today_before = tdata[#(tdata['day'] == x_day) &
 							   (tdata['year'] >= x_year) &
 							   (tdata['month'] == x_month) #&
 							   # (tdata['Max daily temp'] >= 13)
 	]
 	print(f"\nToday temperature {x_day}.{x_month}.2020 in years before was:\n", check_today_before)
+	check_mean = check_today_before.groupby('year')['Max daily temp'].mean()
+	print(f"The mean temperatures for month {x_month} from all years are:\n", check_mean)
 	# Lets show it on a graph
 	sns.catplot(
 		x='year',
 		y='Max daily temp',
 		data=check_today_before,
+		ci=None,
 		kind='bar',
 		color='navy'
 	)
@@ -228,7 +231,7 @@ def some_statistics():
 
 
 def days_over_temp():
-	data_copy_combined = combining_datasets()
+	data_copy_combined = read_csv_combined()
 	# Days with temperatures over a value.
 	data_copy_combined['year'] = pd.DatetimeIndex(data_copy_combined['Measurement day']).year
 	temp = 25
@@ -405,7 +408,7 @@ def all_years_3d():
 	ax.view_init(30, 45)
 	plt.title("Berlin maximal daily temperatures 1876 - 2019, 3d", size=13)
 	plt.show()
-all_years_3d()
+
 
 def calmap_data():
 	# Preparation of data for calmap plot.
