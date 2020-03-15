@@ -155,9 +155,11 @@ def today_before():
 	tdata['day'] = pd.DatetimeIndex(tdata['Measurement day']).day
 	# print("Today before data:\n", tdata.head())
 	print(tdata.dtypes)
-	x_day = 12
+	x_day = 15
 	x_month = 3
-	check_today_before = tdata[(tdata['day'] == x_day) &
+	x_year = 2000
+	check_today_before = tdata[#(tdata['day'] == x_day) &
+							   (tdata['year'] >= x_year) &
 							   (tdata['month'] == x_month) #&
 							   # (tdata['Max daily temp'] >= 13)
 	]
@@ -176,7 +178,22 @@ def today_before():
 	plt.xticks(rotation=90, size=8)
 	plt.yticks(size=8, ticks=(np.arange(-5, 18, 1)))
 	plt.show()
+	return check_today_before
 
+
+def months_3d(): # not working properly
+	d_month_3d = today_before()
+	fig = plt.figure()
+	ax = fig.gca(projection='3d')
+	surf = ax.plot_trisurf(d_month_3d['Measurement day'].dt.year,
+					d_month_3d['Measurement day'].dt.dayofyear,
+					d_month_3d['Max daily temp'],
+					cmap=plt.cm.jet, linewidth=0.2)
+	# to Add a color bar which maps values to colors.
+	fig.colorbar(surf, shrink=0.5, aspect=5)
+	ax.view_init(30, 45)
+	plt.title("Berlin maximal daily temperatures 1876 - 2019, 3d", size=13)
+	plt.show()
 
 
 def some_statistics():
@@ -376,7 +393,7 @@ def all_years_one_plot():
 	plt.show()
 
 def all_years_3d():
-	data_3d = combining_datasets()
+	data_3d = read_csv_combined()
 	fig = plt.figure()
 	ax = fig.gca(projection='3d')
 	surf = ax.plot_trisurf(data_3d['Measurement day'].dt.year,
@@ -388,6 +405,7 @@ def all_years_3d():
 	ax.view_init(30, 45)
 	plt.title("Berlin maximal daily temperatures 1876 - 2019, 3d", size=13)
 	plt.show()
+all_years_3d()
 
 def calmap_data():
 	# Preparation of data for calmap plot.
