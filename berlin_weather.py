@@ -155,7 +155,7 @@ def today_before():
 	tdata['day'] = pd.DatetimeIndex(tdata['Measurement day']).day
 	# print("Today before data:\n", tdata.head())
 	# print(tdata.dtypes)
-	x_day = 15
+	x_day = 16
 	x_month = 3
 	x_year = 1876
 	check_today_before = tdata[#(tdata['day'] == x_day) &
@@ -182,7 +182,7 @@ def today_before():
 	plt.yticks(size=8, ticks=(np.arange(-5, 18, 1)))
 	plt.show()
 	return check_today_before
-
+today_before()
 
 def months_3d(): # not working properly
 	d_month_3d = today_before()
