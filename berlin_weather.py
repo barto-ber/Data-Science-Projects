@@ -6,6 +6,7 @@ import matplotlib.pylab as plt
 from matplotlib import dates
 from datetime import datetime
 import numpy as np
+import sklearn.linear_model
 import seaborn as sns; sns.set()
 from mpl_toolkits.mplot3d import Axes3D
 import calmap
@@ -182,7 +183,7 @@ def today_before():
 	plt.yticks(size=8, ticks=(np.arange(-5, 18, 1)))
 	plt.show()
 	return check_today_before
-today_before()
+
 
 def months_3d(): # not working properly
 	d_month_3d = today_before()
@@ -408,6 +409,29 @@ def all_years_3d():
 	ax.view_init(30, 45)
 	plt.title("Berlin maximal daily temperatures 1876 - 2019, 3d", size=13)
 	plt.show()
+
+def all_years_lin_regr():
+	d = read_csv_combined()
+	# print(d.head())
+	# Prepare the data
+	# d = prepare_country_stats(oecd_bli, gdp_per_capita)
+	X = np.c_[d["Measurement day"]]
+	y = np.c_[d["Max daily temp"]]
+
+	# Visualize the data
+	sns.relplot(x="Measurement day", y='Max daily temp', data=d)
+	# d.plot(kind='scatter', x="Measurement day", y='Max daily temp')
+	# plt.show()
+
+	# Select a linear model
+	model = sklearn.linear_model.LinearRegression()
+
+	# Train the model
+	model.fit(X, y)
+
+	# Make a prediction for ........
+	X_new = [[2020-03-16]]  # Spain' GDP per capita
+	print(f"Predicted max daily temperature for: {X_new}", model.predict(X_new))  # outputs [[ 5.96242338]]
 
 
 def calmap_data():
