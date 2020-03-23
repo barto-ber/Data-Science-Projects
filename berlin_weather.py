@@ -430,8 +430,19 @@ def all_years_lin_regr():
 	model.fit(X, y)
 
 	# Make a prediction for ........
-	X_new = [[2020-03-16]]  # Spain' GDP per capita
+	# X_new = [[2020-03-16]]  # Spain' GDP per capita
 	print(f"Predicted max daily temperature for: {X_new}", model.predict(X_new))  # outputs [[ 5.96242338]]
+
+def simple_colorbar():
+	d = read_csv_combined()
+	d['year'] = pd.DatetimeIndex(d['Measurement day']).year
+	d['month'] = pd.DatetimeIndex(d['Measurement day']).month
+	d['day'] = pd.DatetimeIndex(d['Measurement day']).day
+	d_colorbar = pd.pivot_table(d, values='Max daily temp',
+								index=d['Measurement day'].dt.dayofyear,
+								columns=['year'])
+	sns.heatmap(d_colorbar, cmap="jet")
+	plt.show()
 
 
 def calmap_data():
