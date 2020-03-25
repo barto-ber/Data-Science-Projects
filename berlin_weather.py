@@ -85,13 +85,14 @@ def read_file_mean_1876():
 def check_data():
 	# Checking the data types etc.
 	data_copy = read_file()
-	print(data_copy.shape)
+	print(data_copy.info())
 	print(data_copy.dtypes)
 	print(type(data_copy['MESS_DATUM']))
 	print(data_copy.head())
 	print(data_copy.tail())
 	print(data_copy.columns)
 	print("--- Checking data: DONE ---")
+
 
 def select_data():
 	# Selecting data which I like to work with.
@@ -123,10 +124,11 @@ def combining_datasets():
 	# print(until_1948.head())
 	frames = [until_1948, data_copy]
 	data_copy_combined = pd.concat(frames, sort=False)
-	print("The shape of combined data is:\n", (data_copy_combined.shape))
+	print("The info of combined data is:\n", (data_copy_combined.info()))
 	# print(data_copy_combined.head())
 	# print(data_copy_combined.tail())
 	return data_copy_combined
+
 
 def create_combined_csv():
 	data_for_csv = combining_datasets()
@@ -136,8 +138,21 @@ def create_combined_csv():
 def read_csv_combined():
 	data_combined = read_csv('ber_weather_combined_1876_2019.csv', header=0, parse_dates=[0])
 	print("--- Combined data read ---\n")
-	# print(data_combined.head())
-	return data_combined
+	data_combined['year'] = pd.DatetimeIndex(data_combined['Measurement day']).year
+	data_combined = data_combined.set_index('year')
+	drop_missing_year = 1945
+	data_combined_without_missing_year = data_combined.drop(drop_missing_year, axis=0).reset_index()
+	# data_combined_without_missing_year = data_combined[
+	# 													(data_combined['year'] < drop_missing_year) &
+	# 													(data_combined['year'] > drop_missing_year)
+	# ]
+	# r = pd.date_range(start=data_combined['Measurement day'].min(), end=data_combined['Measurement day'].max())
+	# data_fill = data_combined.set_index('Measurement day').reindex(r).fillna(np.nan).rename_axis('Measurement day').reset_index()
+	# median_1945 = data_fill['Measurement day'].............
+	# print(data_combined_without_missing_year[25200:25300])
+	# print(data_combined.tail())
+	return data_combined_without_missing_year
+
 
 def groupby_exp():
 	g_data = read_csv_combined()
@@ -158,11 +173,11 @@ def today_before():
 	# print("Today before data:\n", tdata.head())
 	# print(tdata.dtypes)
 	x_day = 16
-	x_month = 3
-	x_year = 1876
+	x_month = 6
+	x_year = 1945
 	check_today_before = tdata[#(tdata['day'] == x_day) &
-							   (tdata['year'] >= x_year) &
-							   (tdata['month'] == x_month) #&
+							   (tdata['year'] == x_year) #
+							   # (tdata['month'] == x_month) #&
 							   # (tdata['Max daily temp'] >= 13)
 	]
 	print(f"\nToday temperature {x_day}.{x_month}.2020 in years before was:\n", check_today_before)
