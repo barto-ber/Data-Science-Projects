@@ -7,6 +7,7 @@ from matplotlib import dates
 from datetime import datetime
 import numpy as np
 import sklearn.linear_model
+from scipy.ndimage.filters import gaussian_filter
 import seaborn as sns; sns.set()
 from mpl_toolkits.mplot3d import Axes3D
 import calmap
@@ -441,9 +442,10 @@ def simple_colorbar():
 	d_colorbar = pd.pivot_table(d, values='Max daily temp',
 								index=d['Measurement day'].dt.dayofyear,
 								columns=['year'])
-	sns.heatmap(d_colorbar, cmap="jet")
+	heat_smooth = gaussian_filter(d_colorbar, sigma=3) #Missing data for 1945 fill out with median
+	sns.heatmap(heat_smooth, cmap="jet")
 	plt.show()
-
+simple_colorbar()
 
 def calmap_data():
 	# Preparation of data for calmap plot.
