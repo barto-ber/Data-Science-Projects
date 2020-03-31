@@ -457,8 +457,14 @@ def simple_colorbar():
 	d_colorbar = pd.pivot_table(d, values='Max daily temp',
 								index=d['Measurement day'].dt.dayofyear,
 								columns=['year'])
-	heat_smooth = gaussian_filter(d_colorbar, sigma=3) #Missing data for 1945 fill out with median
-	sns.heatmap(heat_smooth, cmap="jet")
+	heat_smooth = gaussian_filter(d_colorbar, sigma=3) #Missing data for 1945 dropped
+	ax=sns.heatmap(heat_smooth, cmap="jet", vmin=-5, vmax=40)
+	# plt.title("Berlin: Maximum daily temperatures (smoothed).", size=14)
+	# plt.xlabel("Year", size=11)
+	# plt.ylabel("Day of the year", size=11)
+	# plt.xticks(rotation=90, size=8, ticks=(np.arange(1876, 2021, 2)))
+	# plt.yticks(size=8, ticks=(np.arange(0, 360, 2)))
+	# plt.tick_params(labelright=True, size=8)  # here improve!!!!
 	plt.show()
 simple_colorbar()
 
