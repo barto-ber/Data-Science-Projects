@@ -3,6 +3,7 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 from sklearn import linear_model
+from sklearn.metrics import mean_squared_error
 import matplotlib.pyplot as plt
 from pandas.plotting import scatter_matrix
 pd.options.display.width = 0
@@ -26,11 +27,11 @@ pd.set_option('use_inf_as_na', True)
 # data = data.replace([np.inf, -np.inf], np.nan).dropna(subset=data.columns, how="all")
 data = data.replace([np.inf, -np.inf], 0).dropna(subset=data.columns, how="all")
 # data.fillna(data.median(), inplace=True)
-# print(data.head())
+print(data.head())
 # print("\nHow many NaN in dataset?\n", data.isnull().sum().sum())
 # print("\nNo NaN in dataset:\n", np.all(np.isfinite(data)))
-# attributes = ['Max_Wind_Speed', 'Precipitation_level', 'Daily_sum_sunshine', 'Daily_snow_depth',
-#               'Average_air_pressure', 'Daily_mean_humidity', 'Daily_max_temp', 'Daily_min_temp']
+# attributes = ['Measurement_date', 'Max_Wind_Speed', 'Precipitation_level', 'Daily_sum_sunshine', 'Daily_snow_depth',
+#               'Daily_mean_humidity', 'Daily_max_temp', 'Daily_min_temp']
 # scatter_matrix(data[attributes])
 # plt.show()
 
@@ -38,7 +39,9 @@ predict = "Daily_max_temp"
 
 X = np.array(data.drop([predict], axis=1))
 y = np.array(data[predict])
+
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
+
 scaler = MinMaxScaler()
 scaler.fit(X_train)
 X_train_scaled = scaler.transform(X_train)
@@ -54,7 +57,27 @@ linear.fit(X_train_scaled, y_train)
 acc = linear.score(X_test_scaled, y_test)
 print("\nScore for linear regression:\n", acc)
 
-predictions = linear.predict(X_test) # Gets a list of all predictions
+predictions = linear.predict(X_test_scaled) # Gets a list of all predictions
 
-for x in range(50):
-    print(predictions[x], X_test[x], y_test[x])
+lin_mse = mean_squared_error(y_test, predictions)
+lin_rmse = np.sqrt(lin_mse)
+print("\nMSE of Linear Regression model:\n", lin_mse)
+print("\nRMSE of Linear Regression model:\n", lin_rmse)
+
+
+
+
+# for x in range(50):
+#     print(predictions[x], X_test[x], y_test[x])
+
+
+
+
+
+
+# plot = "Measurement_date"
+# plt.scatter(data[plot], data["Daily_max_temp"])
+# plt.legend(loc=4)
+# plt.xlabel(plot)
+# plt.ylabel("Daily max temp")
+# plt.show()
