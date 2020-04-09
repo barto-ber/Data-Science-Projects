@@ -4,6 +4,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 from sklearn import linear_model
 from sklearn.metrics import mean_squared_error
+
 import matplotlib.pyplot as plt
 from pandas.plotting import scatter_matrix
 pd.options.display.width = 0
@@ -54,8 +55,10 @@ linear = linear_model.LinearRegression()
 
 linear.fit(X_train_scaled, y_train)
 
-acc = linear.score(X_test_scaled, y_test)
-print("\nScore for linear regression:\n", acc)
+acc_train = linear.score(X_train_scaled, y_train)
+acc_test = linear.score(X_test_scaled, y_test)
+print("\nScore for linear regression training set:\n", acc_train)
+print("\nScore for linear regression test set:\n", acc_test)
 
 predictions = linear.predict(X_test_scaled) # Gets a list of all predictions
 
@@ -64,8 +67,12 @@ lin_rmse = np.sqrt(lin_mse)
 print("\nMSE of Linear Regression model:\n", lin_mse)
 print("\nRMSE of Linear Regression model:\n", lin_rmse)
 
-
-
+linear_ridge = linear_model.Ridge()
+linear_ridge.fit(X_train_scaled, y_train)
+acc_ridge_train = linear.score(X_train_scaled, y_train)
+acc_ridge_test = linear.score(X_test_scaled, y_test)
+print("\nScore for ridge regression training set:\n", acc_ridge_train)
+print("\nScore for ridge regression test set:\n", acc_ridge_test)
 
 # for x in range(50):
 #     print(predictions[x], X_test[x], y_test[x])
