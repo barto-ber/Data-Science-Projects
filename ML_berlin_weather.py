@@ -28,7 +28,7 @@ pd.set_option('use_inf_as_na', True)
 # data = data.replace([np.inf, -np.inf], np.nan).dropna(subset=data.columns, how="all")
 data = data.replace([np.inf, -np.inf], 0).dropna(subset=data.columns, how="all")
 # data.fillna(data.median(), inplace=True)
-print(data.head())
+# print(data.head())
 # print("\nHow many NaN in dataset?\n", data.isnull().sum().sum())
 # print("\nNo NaN in dataset:\n", np.all(np.isfinite(data)))
 # attributes = ['Measurement_date', 'Max_Wind_Speed', 'Precipitation_level', 'Daily_sum_sunshine', 'Daily_snow_depth',
@@ -67,12 +67,53 @@ lin_rmse = np.sqrt(lin_mse)
 print("\nMSE of Linear Regression model:\n", lin_mse)
 print("\nRMSE of Linear Regression model:\n", lin_rmse)
 
+
+from sklearn.preprocessing import PolynomialFeatures
+poly_features = PolynomialFeatures(degree=10, include_bias=False)
+X_train_poly = poly_features.fit_transform(X_train)
+X_test_poly = poly_features.fit_transform(X_test)
+# linear.fit(X_poly, y_train)
+
+# predictions_poly = linear.predict(X_poly)
+
+# lin_mse_poly = mean_squared_error(y_test, predictions)
+# lin_rmse_poly = np.sqrt(lin_mse)
+# print("\nMSE of Polynomial Regression model:\n", lin_mse_poly)
+# print("\nRMSE of Polynomial Regression model:\n", lin_rmse_poly)
+
+
 linear_ridge = linear_model.Ridge()
 linear_ridge.fit(X_train_scaled, y_train)
-acc_ridge_train = linear.score(X_train_scaled, y_train)
-acc_ridge_test = linear.score(X_test_scaled, y_test)
+acc_ridge_train = linear_ridge.score(X_train_scaled, y_train)
+acc_ridge_test = linear_ridge.score(X_test_scaled, y_test)
 print("\nScore for ridge regression training set:\n", acc_ridge_train)
 print("\nScore for ridge regression test set:\n", acc_ridge_test)
+
+predictions_ridge = linear_ridge.predict(X_test_scaled)
+
+lin_mse_ridge = mean_squared_error(y_test, predictions_ridge)
+lin_rmse_ridge = np.sqrt(lin_mse_ridge)
+print("\nMSE of Ridge Regression model:\n", lin_mse_ridge)
+print("\nRMSE of Ridge Regression model:\n", lin_rmse_ridge)
+
+
+scaler.fit(X_train_poly)
+X_train_poly_scaled = scaler.transform(X_train_poly)
+X_test_poly_scaled = scaler.transform(X_test_poly)
+
+linear_ridge_poly = linear_model.Ridge()
+linear_ridge_poly.fit(X_train_poly_scaled, y_train)
+# acc_ridge_train_poly = linear_ridge.score(X_poly_scaled, y_train)
+# acc_ridge_test_poly = linear_ridge.score(X_test_scaled, y_test)
+# print("\nScore for ridge regression training set:\n", acc_ridge_train)
+# print("\nScore for ridge regression test set:\n", acc_ridge_test)
+
+predictions_ridge_poly = linear_ridge_poly.predict(X_test_poly_scaled)
+
+lin_mse_ridge_poly = mean_squared_error(y_test, predictions_ridge_poly)
+lin_rmse_ridge_poly = np.sqrt(lin_mse_ridge_poly)
+print("\nMSE of Polynomial Ridge Regression model:\n", lin_mse_ridge_poly)
+print("\nRMSE of Polynomial Ridge Regression model:\n", lin_rmse_ridge_poly)
 
 # for x in range(50):
 #     print(predictions[x], X_test[x], y_test[x])
