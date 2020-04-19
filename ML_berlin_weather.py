@@ -7,8 +7,8 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.ensemble import GradientBoostingRegressor
 import xgboost
 from sklearn.preprocessing import PolynomialFeatures
+from sklearn.metrics import r2_score
 from sklearn.metrics import mean_squared_error
-
 import matplotlib.pyplot as plt
 from pandas.plotting import scatter_matrix
 pd.options.display.width = 0
@@ -60,12 +60,10 @@ linear = linear_model.LinearRegression()
 
 linear.fit(X_train_scaled, y_train)
 
-acc_train = linear.score(X_train_scaled, y_train)
-acc_test = linear.score(X_test_scaled, y_test)
-print("\nScore for linear regression training set:\n", acc_train)
-print("\nScore for linear regression test set:\n", acc_test)
-
 predictions = linear.predict(X_test_scaled) # Gets a list of all predictions
+
+score_r2_lin = r2_score(y_test, predictions)
+print("\nR2 of Linear Regression test:\n", score_r2_lin)
 
 lin_mse = mean_squared_error(y_test, predictions)
 lin_rmse = np.sqrt(lin_mse)
@@ -73,29 +71,34 @@ print("\nMSE of Linear Regression model:\n", lin_mse)
 print("\nRMSE of Linear Regression model:\n", lin_rmse)
 
 '''POLYNOMIAL FEATURES'''
-poly_features = PolynomialFeatures(degree=7, include_bias=False)
+poly_features = PolynomialFeatures(degree=3, include_bias=False)
 X_train_poly = poly_features.fit_transform(X_train)
 X_test_poly = poly_features.fit_transform(X_test)
+scaler.fit(X_train_poly)
+X_train_poly_scaled = scaler.transform(X_train_poly)
+X_test_poly_scaled = scaler.transform(X_test_poly)
 
 '''LINEAR FEATURES WITH LINEAR REGRESSION (POLYNOMIAL REGRESSION)'''
-# linear.fit(X_poly, y_train)
+linear.fit(X_train_poly_scaled, y_train)
 
-# predictions_poly = linear.predict(X_poly)
+predictions_poly = linear.predict(X_test_poly)
 
-# lin_mse_poly = mean_squared_error(y_test, predictions)
-# lin_rmse_poly = np.sqrt(lin_mse)
-# print("\nMSE of Polynomial Regression model:\n", lin_mse_poly)
-# print("\nRMSE of Polynomial Regression model:\n", lin_rmse_poly)
+score_r2_poly = r2_score(y_test, predictions_poly)
+print("\nR2 of Polynomial Regression test:\n", score_r2_poly)
+
+lin_mse_poly = mean_squared_error(y_test, predictions_poly)
+lin_rmse_poly = np.sqrt(lin_mse_poly)
+print("\nMSE of Polynomial Regression model:\n", lin_mse_poly)
+print("\nRMSE of Polynomial Regression model:\n", lin_rmse_poly)
 
 '''RIDGE REGRESSION'''
 linear_ridge = linear_model.Ridge()
 linear_ridge.fit(X_train_scaled, y_train)
-acc_ridge_train = linear_ridge.score(X_train_scaled, y_train)
-acc_ridge_test = linear_ridge.score(X_test_scaled, y_test)
-print("\nScore for ridge regression training set:\n", acc_ridge_train)
-print("\nScore for ridge regression test set:\n", acc_ridge_test)
 
 predictions_ridge = linear_ridge.predict(X_test_scaled)
+
+score_r2_ridge = r2_score(y_test, predictions_ridge)
+print("\nR2 of Ridge Regression test:\n", score_r2_ridge)
 
 lin_mse_ridge = mean_squared_error(y_test, predictions_ridge)
 lin_rmse_ridge = np.sqrt(lin_mse_ridge)
@@ -103,18 +106,13 @@ print("\nMSE of Ridge Regression model:\n", lin_mse_ridge)
 print("\nRMSE of Ridge Regression model:\n", lin_rmse_ridge)
 
 '''RIDGE REGRESSION WITH POLYNOMIAL FEATURES'''
-scaler.fit(X_train_poly)
-X_train_poly_scaled = scaler.transform(X_train_poly)
-X_test_poly_scaled = scaler.transform(X_test_poly)
-
 linear_ridge_poly = linear_model.Ridge()
 linear_ridge_poly.fit(X_train_poly_scaled, y_train)
-# acc_ridge_train_poly = linear_ridge.score(X_poly_scaled, y_train)
-# acc_ridge_test_poly = linear_ridge.score(X_test_scaled, y_test)
-# print("\nScore for ridge regression training set:\n", acc_ridge_train)
-# print("\nScore for ridge regression test set:\n", acc_ridge_test)
 
 predictions_ridge_poly = linear_ridge_poly.predict(X_test_poly_scaled)
+
+score_r2_ridge_poly = r2_score(y_test, predictions_ridge_poly)
+print("\nR2 of Polynomial Ridge Regression test:\n", score_r2_ridge_poly)
 
 lin_mse_ridge_poly = mean_squared_error(y_test, predictions_ridge_poly)
 lin_rmse_ridge_poly = np.sqrt(lin_mse_ridge_poly)
@@ -154,7 +152,7 @@ print("\nRMSE of Gradient Boosting Reg with Early Stopping model:\n", rmse_gbrt)
 gbrt = GradientBoostingRegressor(warm_start=True)
 min_val_error = float("inf")
 error_going_up = 0
-for n_estimators in range(1, 100):
+for n_estimators in range(1, 210):
     gbrt.n_estimators = n_estimators
     gbrt.fit(X_train, y_train)
     y_pred = gbrt.predict(X_test)
@@ -166,11 +164,11 @@ for n_estimators in range(1, 100):
         error_going_up += 1
         if error_going_up == 5:
             break # early stopping
-        rmse_gbrt_best = np.sqrt(val_error)
-        print("\nMSE of Gradient Boosting Reg with warm start:\n", val_error)
-        print("\nRMSE of Gradient Boosting Reg with warm start:\n", rmse_gbrt_best)
-        print("\nError going up:\n", error_going_up)
 
+rmse_gbrt_best = np.sqrt(min_val_error)
+print("\nMSE of Gradient Boosting Reg with warm start:\n", min_val_error)
+print("\nRMSE of Gradient Boosting Reg with warm start:\n", rmse_gbrt_best)
+print("\nHow many estimators:\n", gbrt.n_estimators)
 
 '''EXTREME GRADIENT BOOSTING'''
 xgb_reg = xgboost.XGBRegressor()
@@ -180,12 +178,9 @@ y_pred_xgb = xgb_reg.predict(X_test)
 mse_xgb = mean_squared_error(y_test, y_pred_xgb)
 rmse_xgb = np.sqrt(mse_xgb)
 print("\nMSE of Extreme Gradient Boosting Reg model:\n", mse_xgb)
-print("\nRMSE of Extreme Gradient Boosting Reg model:\n", rmse_xgb)
+print("\nRMSE of Extreme Gradient Boosting Reg model:\n", rmse_xgb, "\n")
 
 xgb_reg.fit(X_train, y_train, eval_set=[(X_test, y_test)], early_stopping_rounds=10)
 y_pred_xgb = xgb_reg.predict(X_test)
 
-mse_xgb = mean_squared_error(y_test, y_pred_xgb)
-rmse_xgb = np.sqrt(mse_xgb)
-print("\nMSE of Extreme Gradient Boosting Reg model, early stop 10 rounds:\n", mse_xgb)
-print("\nRMSE of Extreme Gradient Boosting Reg model, early stop 10 rounds:\n", rmse_xgb)
+
