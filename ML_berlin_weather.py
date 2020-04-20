@@ -79,7 +79,7 @@ X_train_poly_scaled = scaler.transform(X_train_poly)
 X_test_poly_scaled = scaler.transform(X_test_poly)
 
 '''LINEAR FEATURES WITH LINEAR REGRESSION (POLYNOMIAL REGRESSION)'''
-linear.fit(X_train_poly_scaled, y_train)
+linear.fit(X_train_poly, y_train)
 
 predictions_poly = linear.predict(X_test_poly)
 
