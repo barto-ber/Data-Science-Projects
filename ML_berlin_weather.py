@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
+from sklearn.model_selection import TimeSeriesSplit
 from sklearn.preprocessing import MinMaxScaler
 from sklearn import linear_model
 from sklearn.ensemble import RandomForestRegressor
@@ -9,6 +10,7 @@ import xgboost
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.metrics import r2_score
 from sklearn.metrics import mean_squared_error
+from sklearn.model_selection import cross_val_score
 import matplotlib.pyplot as plt
 from pandas.plotting import scatter_matrix
 pd.options.display.width = 0
@@ -45,7 +47,13 @@ predict = "Daily_max_temp"
 X = np.array(data.drop([predict], axis=1))
 y = np.array(data[predict])
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
+# X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
+
+'''SPLITTING FOR TIME SERIES'''
+X_train = X[:int(X.shape[0]*0.7)]
+X_test = X[int(X.shape[0]*0.7):]
+y_train = y[:int(X.shape[0]*0.7)]
+y_test = y[int(X.shape[0]*0.7):]
 
 scaler = MinMaxScaler()
 scaler.fit(X_train)
@@ -120,10 +128,10 @@ print("\nMSE of Polynomial Ridge Regression model:\n", lin_mse_ridge_poly)
 print("\nRMSE of Polynomial Ridge Regression model:\n", lin_rmse_ridge_poly)
 
 '''RANDOM FOREST'''
-rnd_clf = RandomForestRegressor(n_jobs=-1)
-rnd_clf.fit(X_train, y_train)
+forest = RandomForestRegressor(n_jobs=-1)
+forest.fit(X_train, y_train)
 
-y_pred_rf = rnd_clf.predict(X_test)
+y_pred_rf = forest.predict(X_test)
 
 mse_random_forest = mean_squared_error(y_test, y_pred_rf)
 rmse_random_forest = np.sqrt(mse_random_forest)
@@ -141,7 +149,7 @@ bst_n_estimators = np.argmin(errors)
 gbrt_best = GradientBoostingRegressor(n_estimators=bst_n_estimators)
 gbrt_best.fit(X_train, y_train)
 
-y_pred_gbrt = gbrt.predict(X_test)
+y_pred_gbrt = gbrt_best.predict(X_test)
 
 mse_gbrt = mean_squared_error(y_test, y_pred_gbrt)
 rmse_gbrt = np.sqrt(mse_gbrt)
@@ -149,13 +157,13 @@ print("\nMSE of Gradient Boosting Reg with Early Stopping model:\n", mse_gbrt)
 print("\nRMSE of Gradient Boosting Reg with Early Stopping model:\n", rmse_gbrt)
 
 '''GBR WITH IMPLEMENTATION EARLY STOPPING BY REAL STOPPING EARLY'''
-gbrt = GradientBoostingRegressor(warm_start=True)
+gbrt_warm = GradientBoostingRegressor(warm_start=True)
 min_val_error = float("inf")
 error_going_up = 0
 for n_estimators in range(1, 210):
-    gbrt.n_estimators = n_estimators
-    gbrt.fit(X_train, y_train)
-    y_pred = gbrt.predict(X_test)
+    gbrt_warm.n_estimators = n_estimators
+    gbrt_warm.fit(X_train, y_train)
+    y_pred = gbrt_warm.predict(X_test)
     val_error = mean_squared_error(y_test, y_pred)
     if val_error < min_val_error:
         min_val_error = val_error
@@ -183,4 +191,51 @@ print("\nRMSE of Extreme Gradient Boosting Reg model:\n", rmse_xgb, "\n")
 xgb_reg.fit(X_train, y_train, eval_set=[(X_test, y_test)], early_stopping_rounds=10)
 y_pred_xgb = xgb_reg.predict(X_test)
 
+'''EVALUATION WITH CROSS-VALIDATION'''
+def display_scores(scores):
+    print("\nScores:\n", scores)
+    print("Mean:\n", scores.mean())
+    print("Standard deviation:\n", scores.std())
+
+tscv = TimeSeriesSplit(n_splits=10)
+
+print("\n\tCross validation for Linear Regression:")
+lin_reg_scores = cross_val_score(linear, X_train_scaled, y_train, scoring="neg_mean_squared_error", cv=tscv)
+lin_reg_rmse_scores = np.sqrt(-lin_reg_scores)
+display_scores(lin_reg_rmse_scores)
+
+print("\n\tCross validation for Polynomial Regression:")
+poly_reg_scores = cross_val_score(linear, X_train_poly, y_train, scoring="neg_mean_squared_error", cv=tscv)
+poly_reg_rmse_scores = np.sqrt(-poly_reg_scores)
+display_scores(poly_reg_rmse_scores)
+
+print("\n\tCross validation for Ridge Regression:")
+ridge_reg_scores = cross_val_score(linear_ridge, X_train_scaled, y_train, scoring="neg_mean_squared_error", cv=tscv)
+ridge_reg_rmse_scores = np.sqrt(-ridge_reg_scores)
+display_scores(ridge_reg_rmse_scores)
+
+print("\n\tCross validation for Polynomial Ridge Regression:")
+poly_ridge_reg_scores = cross_val_score(linear_ridge_poly, X_train_poly_scaled, y_train, scoring="neg_mean_squared_error", cv=tscv)
+poly_ridge_reg_rmse_scores = np.sqrt(-poly_ridge_reg_scores)
+display_scores(poly_ridge_reg_rmse_scores)
+
+print("\n\tCross validation for Random Forest:")
+forest_scores = cross_val_score(forest, X_train, y_train, scoring="neg_mean_squared_error", cv=tscv)
+forest_rmse_scores = np.sqrt(-forest_scores)
+display_scores(forest_rmse_scores)
+
+print("\n\tCross validation for Gradient Boost Regressor:")
+gbrt_scores = cross_val_score(gbrt_best, X_train, y_train, scoring="neg_mean_squared_error", cv=tscv)
+gbrt_rmse_scores = np.sqrt(-gbrt_scores)
+display_scores(gbrt_rmse_scores)
+
+print("\n\tCross validation for real early warm=true stop Gradient Boost Regressor:")
+gbrt_warm_scores = cross_val_score(gbrt_warm, X_train, y_train, scoring="neg_mean_squared_error", cv=tscv)
+gbrt_warm_rmse_scores = np.sqrt(-gbrt_warm_scores)
+display_scores(gbrt_warm_rmse_scores)
+
+print("\n\tCross validation for Extreme Gradient Boosting:")
+xgb_scores = cross_val_score(xgb_reg, X_train, y_train, scoring="neg_mean_squared_error", cv=tscv)
+xgb_rmse_scores = np.sqrt(-xgb_scores)
+display_scores(xgb_rmse_scores)
 

@@ -1,0 +1,187 @@
+'''Results for split sk-learn TimeSeriesSplit():"""
+
+
+C:\Users\SZ\AppData\Local\Programs\Python\Python38\python.exe C:/Users/SZ/PycharmProjects/berlin_weather/ML_berlin_weather.py
+
+R2 of Linear Regression test:
+ 0.6222063544395828
+
+MSE of Linear Regression model:
+ 31.273050938698404
+
+RMSE of Linear Regression model:
+ 5.592231302324539
+
+R2 of Polynomial Regression test:
+ -500.167930126181
+
+MSE of Polynomial Regression model:
+ 41485.74332008359
+
+RMSE of Polynomial Regression model:
+ 203.68049322427416
+
+R2 of Ridge Regression test:
+ 0.2712128450193847
+
+MSE of Ridge Regression model:
+ 60.32763676416322
+
+RMSE of Ridge Regression model:
+ 7.767086761724967
+
+R2 of Polynomial Ridge Regression test:
+ -21017.765326000583
+
+MSE of Polynomial Ridge Regression model:
+ 1739894.0570678408
+
+RMSE of Polynomial Ridge Regression model:
+ 1319.050437651207
+
+MSE of Random Forest model:
+ 4.5536225949216425
+
+RMSE of Random Forest model:
+ 2.13392188116661
+
+MSE of Gradient Boosting Reg with Early Stopping model:
+ 5.199931716775552
+
+RMSE of Gradient Boosting Reg with Early Stopping model:
+ 2.280335878061728
+
+MSE of Gradient Boosting Reg with warm start:
+ 4.411509309539556
+
+RMSE of Gradient Boosting Reg with warm start:
+ 2.1003593286720146
+
+How many estimators:
+ 100
+
+MSE of Extreme Gradient Boosting Reg model:
+ 6.714410974977791
+
+RMSE of Extreme Gradient Boosting Reg model:
+ 2.5912180485203846 
+
+[0]	validation_0-rmse:12.28106
+Will train until validation_0-rmse hasn't improved in 10 rounds.
+[1]	validation_0-rmse:8.89846
+[2]	validation_0-rmse:6.57402
+[3]	validation_0-rmse:4.94667
+[4]	validation_0-rmse:3.94480
+[5]	validation_0-rmse:3.21845
+[6]	validation_0-rmse:2.75464
+[7]	validation_0-rmse:2.47670
+[8]	validation_0-rmse:2.32294
+[9]	validation_0-rmse:2.26028
+[10]	validation_0-rmse:2.20901
+[11]	validation_0-rmse:2.18297
+[12]	validation_0-rmse:2.16161
+[13]	validation_0-rmse:2.15262
+[14]	validation_0-rmse:2.16220
+[15]	validation_0-rmse:2.15834
+[16]	validation_0-rmse:2.15520
+[17]	validation_0-rmse:2.16119
+[18]	validation_0-rmse:2.15932
+[19]	validation_0-rmse:2.15786
+[20]	validation_0-rmse:2.15508
+[21]	validation_0-rmse:2.15223
+[22]	validation_0-rmse:2.15164
+[23]	validation_0-rmse:2.24428
+[24]	validation_0-rmse:2.24399
+[25]	validation_0-rmse:2.24467
+[26]	validation_0-rmse:2.26266
+[27]	validation_0-rmse:2.26177
+[28]	validation_0-rmse:2.26486
+[29]	validation_0-rmse:2.26584
+[30]	validation_0-rmse:2.33714
+[31]	validation_0-rmse:2.33709
+[32]	validation_0-rmse:2.33146
+Stopping. Best iteration:
+[22]	validation_0-rmse:2.15164
+
+
+Cross validation for Linear Regression:
+
+Scores:
+ [2.48226554 2.10560285 1.98776535 2.12995463 2.11319337 2.06084998
+ 2.15344393 2.11779838 2.14927717 2.05534915]
+Mean:
+ 2.1355500338614712
+Standard deviation:
+ 0.12502637437054495
+
+Cross validation for Polynomial Regression:
+
+Scores:
+ [6.99743722 2.22502382 2.08773792 2.12198128 2.06661336 2.01680567
+ 2.19444808 2.08111617 1.98173    1.92660815]
+Mean:
+ 2.5699501672410117
+Standard deviation:
+ 1.4783094995550368
+
+Cross validation for Ridge Regression:
+
+Scores:
+ [2.17690174 2.11400154 1.99758781 2.12684865 2.10977757 2.06404723
+ 2.1561342  2.12254269 2.15063806 2.05901401]
+Mean:
+ 2.1077493508198657
+Standard deviation:
+ 0.050999991475277145
+
+Cross validation for Polynomial Ridge Regression:
+
+Scores:
+ [2.22691194 2.01979127 1.96041412 2.07429669 2.02854288 1.97930845
+ 2.08199391 2.00705605 2.02176222 1.92639105]
+Mean:
+ 2.0326468579316446
+Standard deviation:
+ 0.07887781002569609
+
+Cross validation for Random Forest:
+
+Scores:
+ [2.29303889 2.277596   2.1002419  2.1789382  2.10557741 2.14335423
+ 2.26075691 2.06401394 2.05270401 1.93767666]
+Mean:
+ 2.141389813507144
+Standard deviation:
+ 0.10748894521347288
+
+Cross validation for Gradient Boost Regressor:
+
+Scores:
+ [2.32370794 2.19103307 2.12772632 2.16825528 2.12561587 2.12843678
+ 2.30914569 2.1353641  2.2861652  2.14665262]
+Mean:
+ 2.1942102880763463
+Standard deviation:
+ 0.07635137409954833
+
+Cross validation for real early warm=true stop Gradient Boost Regressor:
+
+Scores:
+ [2.26874128 2.13477047 2.06288117 2.07258189 2.10763296 2.06396736
+ 2.09885469 2.28989752 2.1850589  1.90040247]
+Mean:
+ 2.1184788703356365
+Standard deviation:
+ 0.10625001627107172
+
+Cross validation for Extreme Gradient Boosting:
+
+Scores:
+ [2.66276108 2.70841948 2.32146753 2.36270201 3.19172709 2.40716925
+ 2.90041782 2.24720297 3.58087668 2.0949271 ]
+Mean:
+ 2.6477671013268935
+Standard deviation:
+ 0.44113789345118787
+
+Process finished with exit code 0
