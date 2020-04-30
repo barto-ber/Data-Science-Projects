@@ -21,12 +21,13 @@ less_columns = ["Station_ID", "QN_3", "QN_4", "VPM", "eor", "Average_air_pressur
                 "Precipitation_form", "Means_of_coverage", "Daily_mean_temp", "Daily_min_temp_ground"]
 data.drop(less_columns, inplace=True, axis=1)
 data = data.replace(-999.0, np.nan)
+data = data.replace(-999, np.nan)
 # data.fillna(data.median(), inplace=True)
 data = data[data['Measurement_date'] >= 19740101]
 data.reset_index(inplace=True)
 data = data.drop(['index'], axis=1)
 # print(data.info())
-# print(data[1500:1600])
+# print(data[12700:12800])
 
 # Treating infinity as NaN:
 pd.set_option('use_inf_as_na', True)
@@ -34,7 +35,9 @@ pd.set_option('use_inf_as_na', True)
 # data = data.replace([np.inf, -np.inf], np.nan).dropna(subset=data.columns, how="all")
 data = data.replace([np.inf, -np.inf], 0).dropna(subset=data.columns, how="all")
 # data.fillna(data.median(), inplace=True)
+
 # print(data.head())
+# print(data.info())
 # print("\nHow many NaN in dataset?\n", data.isnull().sum().sum())
 # print("\nNo NaN in dataset:\n", np.all(np.isfinite(data)))
 # attributes = ['Measurement_date', 'Max_Wind_Speed', 'Precipitation_level', 'Daily_sum_sunshine', 'Daily_snow_depth',
@@ -95,7 +98,7 @@ scaler.fit(X_train_poly)
 X_train_poly_scaled = scaler.transform(X_train_poly)
 X_test_poly_scaled = scaler.transform(X_test_poly)
 
-'''LINEAR FEATURES WITH LINEAR REGRESSION (POLYNOMIAL REGRESSION)'''
+'''POLYNOMIAL FEATURES WITH LINEAR REGRESSION (POLYNOMIAL REGRESSION)'''
 def poly_reg():
     linear = linear_model.LinearRegression()
     linear.fit(X_train_poly, y_train)
@@ -205,6 +208,9 @@ def gbrt_1():
     predictions = gbrt_best.predict(X_test)
     predictions_train = gbrt.predict(X_train)
 
+    score_r2_gbrt_1 = r2_score(y_test, predictions)
+    print("\nR2 of Random Gradient Boost Regressor test:\n", score_r2_gbrt_1)
+
     mse_gbrt = mean_squared_error(y_test, predictions)
     rmse_gbrt = np.sqrt(mse_gbrt)
     print("\nMSE of Gradient Boosting Reg with Early Stopping model:\n", mse_gbrt)
@@ -213,23 +219,30 @@ def gbrt_1():
 
 '''GBR WITH IMPLEMENTATION EARLY STOPPING BY REAL STOPPING EARLY'''
 def gbrt_2():
-    gbrt = gbrt_1()
-    gbrt_warm = GradientBoostingRegressor(warm_start=True)
-    min_val_error = float("inf")
-    error_going_up = 0
-    for n_estimators in range(1, 210):
-        gbrt_warm.n_estimators = n_estimators
-        gbrt_warm.fit(X_train, y_train)
-        predictions = gbrt_warm.predict(X_test)
-        predictions_train = gbrt_warm.predict(X_train)
-        val_error = mean_squared_error(y_test, predictions)
-        if val_error < min_val_error:
-            min_val_error = val_error
-            error_going_up = 0
-        else:
-            error_going_up += 1
-            if error_going_up == 5:
-                break # early stopping
+    # gbrt = gbrt_1()
+    def gbrt_2_estimators():
+        gbrt_warm = GradientBoostingRegressor(warm_start=True)
+        min_val_error = float("inf")
+        error_going_up = 0
+        for n_estimators in range(1, 210):
+            gbrt_warm.n_estimators = n_estimators
+            gbrt_warm.fit(X_train, y_train)
+            predictions = gbrt_warm.predict(X_test)
+            predictions_train = gbrt_warm.predict(X_train)
+            val_error = mean_squared_error(y_test, predictions)
+            if val_error < min_val_error:
+                min_val_error = val_error
+                error_going_up = 0
+            else:
+                error_going_up += 1
+                if error_going_up == 5:
+                    break # early stopping
+            return gbrt_warm, min_val_error, predictions, predictions_train
+
+    gbrt_warm, min_val_error, predictions, predictions_train = gbrt_2_estimators()
+
+    score_r2_gbrt_2 = r2_score(y_test, predictions)
+    print("\nR2 of real early warm=true stop Gradient Boost Regressor test:\n", score_r2_gbrt_2)
 
     print("\n\tCross validation for real early warm=true stop Gradient Boost Regressor:")
     gbrt_warm_scores = cross_val_score(gbrt_warm, X_train, y_train, scoring="neg_mean_squared_error", cv=tscv)
@@ -239,8 +252,10 @@ def gbrt_2():
     rmse_gbrt_best = np.sqrt(min_val_error)
     print("\nMSE of Gradient Boosting Reg with warm start:\n", min_val_error)
     print("\nRMSE of Gradient Boosting Reg with warm start:\n", rmse_gbrt_best)
-    print("\nHow many estimators:\n", gbrt.n_estimators)
+    print("\nHow many estimators:\n", gbrt_warm.n_estimators)
+
     return predictions, predictions_train
+    # return predictions, predictions_train
 
 '''EXTREME GRADIENT BOOSTING'''
 def xgb():
@@ -271,18 +286,19 @@ def display_scores(scores):
     print("Standard deviation:\n", scores.std())
 
 '''Lets try to plot some predictions'''
-predictions, predictions_train = lin_reg()
+predictions, predictions_train = gbrt_2()
 
 n_train = (len(data['Measurement_date'])) * 0.7
 n_train = int(n_train)
 # print(n_train)
+
 plt.figure(figsize=(10, 3))
-# plt.xticks(range(0, len(X), 8), xticks.strftime("%a %m-%d"), rotation=90, ha="left")
+plt.xticks(rotation=90, ha="left")
 plt.plot(range(n_train), y_train, label="train")
 plt.plot(range(n_train, len(y_test) + n_train), y_test, '-', label="test")
 plt.plot(range(n_train), predictions_train, '--', label="prediction train")
 plt.plot(range(n_train, len(y_test) + n_train), predictions, '--', label="prediction test")
-plt.legend(loc=(1.01, 0))
+plt.legend()
 plt.xlabel("Date")
 plt.ylabel("Max temp")
 plt.show()
