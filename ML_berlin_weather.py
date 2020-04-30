@@ -35,7 +35,7 @@ pd.set_option('use_inf_as_na', True)
 # data = data.replace([np.inf, -np.inf], np.nan).dropna(subset=data.columns, how="all")
 data = data.replace([np.inf, -np.inf], 0).dropna(subset=data.columns, how="all")
 # data.fillna(data.median(), inplace=True)
-
+# print(data[data[1]])
 # print(data.head())
 # print(data.info())
 # print("\nHow many NaN in dataset?\n", data.isnull().sum().sum())
@@ -168,7 +168,7 @@ def ridge_reg_poly():
 
 '''RANDOM FOREST'''
 def rand_forests():
-    forest = RandomForestRegressor(n_jobs=-1)
+    forest = RandomForestRegressor(n_jobs=-1, random_state=42)
     forest.fit(X_train, y_train)
 
     print("\n\tCross validation for Random Forest:")
@@ -186,11 +186,16 @@ def rand_forests():
     rmse_random_forest = np.sqrt(mse_random_forest)
     print("\nMSE of Random Forest model:\n", mse_random_forest)
     print("\nRMSE of Random Forest model:\n", rmse_random_forest)
+
+    feature_names = list(data)
+    print(sorted(zip(map(lambda x: round(x, 4), forest.feature_importances_), feature_names),
+                reverse=True))
+
     return predictions, predictions_train
 
 '''GRADIENT BOOST REGRESSOR FOR RANDOM FOREST WITH EARLY STOPPING'''
 def gbrt_1():
-    gbrt = GradientBoostingRegressor(learning_rate=1.0)
+    gbrt = GradientBoostingRegressor(learning_rate=0.1)
     gbrt.fit(X_train, y_train)
 
     errors = [mean_squared_error(y_test, y_pred)
@@ -286,7 +291,7 @@ def display_scores(scores):
     print("Standard deviation:\n", scores.std())
 
 '''Lets try to plot some predictions'''
-predictions, predictions_train = gbrt_2()
+predictions, predictions_train = rand_forests()
 
 n_train = (len(data['Measurement_date'])) * 0.7
 n_train = int(n_train)
