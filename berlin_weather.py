@@ -172,12 +172,12 @@ def today_before():
 	tdata['day'] = pd.DatetimeIndex(tdata['Measurement day']).day
 	# print("Today before data:\n", tdata.head())
 	# print(tdata.dtypes)
-	x_day = 16
-	x_month = 6
-	x_year = 1945
-	check_today_before = tdata[#(tdata['day'] == x_day) &
-							   (tdata['year'] == x_year) #
-							   # (tdata['month'] == x_month) #&
+	x_day = 1
+	x_month = 5
+	x_year = 2016
+	check_today_before = tdata[(tdata['day'] == x_day) &
+							   # (tdata['year'] == x_year) &
+							   (tdata['month'] == x_month) #&
 							   # (tdata['Max daily temp'] >= 13)
 	]
 	print(f"\nToday temperature {x_day}.{x_month}.2020 in years before was:\n", check_today_before)
@@ -196,7 +196,7 @@ def today_before():
 	plt.xlabel("Year", size=11)
 	plt.ylabel("Max daily temp C°", size=11)
 	plt.xticks(rotation=90, size=8)
-	plt.yticks(size=8, ticks=(np.arange(-5, 18, 1)))
+	plt.yticks(size=8, ticks=(np.arange(0, 30, 1)))
 	plt.show()
 	return check_today_before
 
@@ -426,28 +426,6 @@ def all_years_3d():
 	plt.title("Berlin maximal daily temperatures 1876 - 2019, 3d", size=13)
 	plt.show()
 
-def all_years_lin_regr():
-	d = read_csv_combined()
-	# print(d.head())
-	# Prepare the data
-	# d = prepare_country_stats(oecd_bli, gdp_per_capita)
-	X = np.c_[d["Measurement day"]]
-	y = np.c_[d["Max daily temp"]]
-
-	# Visualize the data
-	sns.relplot(x="Measurement day", y='Max daily temp', data=d)
-	# d.plot(kind='scatter', x="Measurement day", y='Max daily temp')
-	# plt.show()
-
-	# Select a linear model
-	model = sklearn.linear_model.LinearRegression()
-
-	# Train the model
-	model.fit(X, y)
-
-	# Make a prediction for ........
-	# X_new = [[2020-03-16]]  # Spain' GDP per capita
-	print(f"Predicted max daily temperature for: {X_new}", model.predict(X_new))  # outputs [[ 5.96242338]]
 
 def simple_colorbar():
 	d = read_csv_combined()
