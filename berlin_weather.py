@@ -174,24 +174,35 @@ def today_before():
 	# print(tdata.dtypes)
 	x_day = 1
 	x_month = 5
-	x_year = 2016
-	check_today_before = tdata[(tdata['day'] == x_day) &
-							   # (tdata['year'] == x_year) &
+	x_year = 2014
+	check_today_before = tdata[#(tdata['day'] == x_day) &
+							   (tdata['year'] >= x_year) &
 							   (tdata['month'] == x_month) #&
 							   # (tdata['Max daily temp'] >= 13)
 	]
+	print(check_today_before.head())
 	print(f"\nToday temperature {x_day}.{x_month}.2020 in years before was:\n", check_today_before)
 	check_mean = check_today_before.groupby('year')['Max daily temp'].mean()
 	print(f"The mean temperatures for month {x_month} from all years are:\n", check_mean)
 	# Lets show it on a graph
-	sns.catplot(
-		x='year',
-		y='Max daily temp',
-		data=check_today_before,
-		ci=None,
-		kind='bar',
-		color='navy'
-	)
+	# sns.catplot(
+	# 	x='year',
+	# 	y='Max daily temp',
+	# 	data=check_today_before,
+	# 	ci=None,
+	# 	kind='bar',
+	# 	color='navy'
+	# )
+
+	sns.relplot(x='day',
+				y='Max daily temp',
+				hue='year',
+				kind='line',
+				data=check_today_before,
+				legend='full',
+				palette="seismic",
+				ci=None,
+				)
 	plt.title(f"Berlin: today temperature {x_day}.{x_month}.2020 in the years before", size=14)
 	plt.xlabel("Year", size=11)
 	plt.ylabel("Max daily temp C°", size=11)
@@ -414,6 +425,7 @@ def all_years_one_plot():
 
 def all_years_3d():
 	data_3d = read_csv_combined()
+	# data_3d = today_before()
 	fig = plt.figure()
 	ax = fig.gca(projection='3d')
 	surf = ax.plot_trisurf(data_3d['Measurement day'].dt.year,
@@ -444,7 +456,7 @@ def simple_colorbar():
 	# plt.yticks(size=8, ticks=(np.arange(0, 360, 2)))
 	# plt.tick_params(labelright=True, size=8)  # here improve!!!!
 	plt.show()
-simple_colorbar()
+
 
 def calmap_data():
 	# Preparation of data for calmap plot.
