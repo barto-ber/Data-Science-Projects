@@ -93,7 +93,7 @@ def lin_reg():
 '''POLYNOMIAL FEATURES'''
 poly_features = PolynomialFeatures(degree=3, include_bias=False)
 X_train_poly = poly_features.fit_transform(X_train)
-X_test_poly = poly_features.fit_transform(X_test)
+X_test_poly = poly_features.transform(X_test)
 scaler.fit(X_train_poly)
 # scaler.fit(X_test_poly)
 X_train_poly_scaled = scaler.transform(X_train_poly)

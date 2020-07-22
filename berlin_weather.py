@@ -318,12 +318,13 @@ def group_data_decades():
 
 def select_data_period():
 	# Selecting data based on dates; Setting Measurement day as the index.
-	data_copy_combined = combining_datasets()
+	data_copy_combined = read_csv_combined()
 	data_copy_index = data_copy_combined.set_index('Measurement day')
-	first_jan = data_copy_index['2019-03-02': '2019-03-02']
+	first_jan = data_copy_index['2019-05-01': '2019-05-31']
 	print("\n--- Selected data based on one period ---")
 	print(first_jan)
 	return data_copy_index
+select_data_period()
 
 def select_data_many_periods():
 	# Selecting many periods to put them together on one plot.
